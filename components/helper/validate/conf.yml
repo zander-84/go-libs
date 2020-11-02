@@ -1,0 +1,6 @@
+components:
+  validator:
+    locale: zh
+    validateTag: validate
+    commentTag: comment
+    jsonTag: json

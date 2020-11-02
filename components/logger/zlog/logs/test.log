@@ -1,0 +1,9 @@
+2020/10/28 17:19:10.476437 zap.go:93: starting log...
+{"level":"info","ts":"2020-10-28 17:19:10","msg":"Info","from":"bbb","trace_id":"ssssss"}
+{"level":"error","ts":"2020-10-28 17:19:10","msg":"Error","from":"aaa","from":"bbb","trace_id":"ssssss"}
+2020/10/28 17:32:32.810089 zap.go:96: starting log...
+{"level":"info","ts":"2020-10-28 17:32:32","msg":"Info","from":"bbb","trace_id":"ssssss"}
+{"level":"error","ts":"2020-10-28 17:32:32","msg":"Error","from":"aaa","from":"bbb","trace_id":"ssssss"}
+2020/10/28 17:48:16.453363 zap.go:96: starting log...
+{"level":"info","ts":"2020-10-28 17:48:16","msg":"Info","from":"bbb","trace_id":"ssssss"}
+{"level":"error","ts":"2020-10-28 17:48:16","msg":"Error","from":"aaa","from":"bbb","trace_id":"ssssss"}
