@@ -20,12 +20,12 @@ const (
 	SuccessCode                  = "10200" // 成功
 	SuccessActionCode            = "10201" // 成功行为
 	UserSpaceErrorCode           = "10400" // 用户空间错误
-	UserAlterErrorCode           = "10406" //  简单错误
+	UserAlterErrorCode           = "10406" // 简单错误
 	UserParamsErrorCode          = "10402" // 参数错误
 	UserForbiddenErrorCode       = "10403" // 禁止访问
 	UserUnauthorizedErrorCode    = "10401" // 未认证
-	UserTooManyRequestsErrorCode = "10429" //请求过于频繁
-	SystemSpaceErrorCode         = "10500" //系统空间错误
+	UserTooManyRequestsErrorCode = "10429" // 请求过于频繁
+	SystemSpaceErrorCode         = "10500" // 系统空间错误
 )
 
 func Success(data Data) Data {
