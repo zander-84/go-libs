@@ -4,6 +4,9 @@ go 1.14
 
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.4+incompatible // indirect
+	github.com/appleboy/gin-jwt/v2 v2.6.4 // indirect
+	github.com/didip/tollbooth v4.0.2+incompatible // indirect
+	github.com/gin-gonic/gin v1.6.3 // indirect
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.4.1

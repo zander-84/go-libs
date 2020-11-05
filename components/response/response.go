@@ -15,116 +15,129 @@ type Data struct {
 	ShowDebug bool        `json:"-"`
 }
 
+func NewData() *Data {
+	return new(Data)
+}
+
 const (
 	//系统code码预留
-	SuccessCode                  = "10200" // 成功
-	SuccessActionCode            = "10201" // 成功行为
-	UserSpaceErrorCode           = "10400" // 用户空间错误
-	UserAlterErrorCode           = "10406" // 简单错误
-	UserParamsErrorCode          = "10402" // 参数错误
-	UserForbiddenErrorCode       = "10403" // 禁止访问
-	UserUnauthorizedErrorCode    = "10401" // 未认证
-	UserTooManyRequestsErrorCode = "10429" // 请求过于频繁
-	SystemSpaceErrorCode         = "10500" // 系统空间错误
+	SuccessCode                  = "100200" // 成功
+	SuccessActionCode            = "100201" // 成功行为
+	UserSpaceErrorCode           = "100400" // 用户空间错误
+	UserParamsErrorCode          = "101400" // 参数错误
+	UserAlterErrorCode           = "102400" // 简单错误
+	UserForbiddenErrorCode       = "100403" // 禁止访问
+	UserSignErrorCode            = "101403" // 签名错误
+	UserUnauthorizedErrorCode    = "100401" // 未认证
+	UserTooManyRequestsErrorCode = "100429" // 请求过于频繁
+	SystemSpaceErrorCode         = "100500" // 系统空间错误
 )
 
-func Success(data Data) Data {
+func Success(data *Data) *Data {
 	data.HttpCode = http.StatusOK
 	data.Code = SuccessCode
 	if data.Msg == "" {
 		data.Msg = string(errs.Success)
 	}
-	HandleData(&data)
+	HandleData(data)
 	return data
 }
 
-func SuccessAction(data Data) Data {
+func SuccessAction(data *Data) *Data {
 	data.HttpCode = http.StatusNoContent
 	data.Code = SuccessActionCode
 	if data.Msg == "" {
 		data.Msg = string(errs.SuccessAction)
 	}
-	HandleData(&data)
+	HandleData(data)
 	return data
 }
 
-func SystemSpaceError(data Data) Data {
+func SystemSpaceError(data *Data) *Data {
 	data.HttpCode = http.StatusInternalServerError
 	data.Code = SystemSpaceErrorCode
 	if data.Msg == "" {
 		data.Msg = string(errs.SystemError)
 	}
-	HandleData(&data)
+	HandleData(data)
 	return data
 }
 
-func UserSpaceError(data Data) Data {
+func UserSpaceError(data *Data) *Data {
 	data.HttpCode = http.StatusBadRequest
 	data.Code = UserSpaceErrorCode
 
 	if data.Msg == "" {
 		data.Msg = string(errs.UserError)
 	}
-	HandleData(&data)
+	HandleData(data)
 	return data
 }
 
-func UserAlterError(data Data) Data {
+func UserAlterError(data *Data) *Data {
 	data.HttpCode = http.StatusBadRequest
 	data.Code = UserAlterErrorCode
 	if data.Msg == "" {
 		data.Msg = string(errs.AlterError)
 	}
-	HandleData(&data)
+	HandleData(data)
 	return data
 }
 
-func UserParamsError(data Data) Data {
+func UserParamsError(data *Data) *Data {
 	data.HttpCode = http.StatusBadRequest
 	data.Code = UserParamsErrorCode
 	if data.Msg == "" {
 		data.Msg = string(errs.ParamsError)
 	}
-	HandleData(&data)
+	HandleData(data)
 	return data
 }
-func UserForbiddenError(data Data) Data {
+func UserForbiddenError(data *Data) *Data {
 	data.HttpCode = http.StatusForbidden
 	data.Code = UserForbiddenErrorCode
 	if data.Msg == "" {
 		data.Msg = string(errs.ForbiddenError)
 	}
-	HandleData(&data)
+	HandleData(data)
 	return data
 }
-
-func UserTooManyRequestsError(data Data) Data {
+func UserSignError(data *Data) *Data {
+	data.HttpCode = http.StatusForbidden
+	data.Code = UserSignErrorCode
+	if data.Msg == "" {
+		data.Msg = string(errs.SignError)
+	}
+	HandleData(data)
+	return data
+}
+func UserTooManyRequestsError(data *Data) *Data {
 	data.HttpCode = http.StatusTooManyRequests
 	data.Code = UserTooManyRequestsErrorCode
 	if data.Msg == "" {
 		data.Msg = string(errs.TooManyRequestsError)
 	}
-	HandleData(&data)
+	HandleData(data)
 	return data
 }
-func UserUnauthorizedError(data Data) Data {
+func UserUnauthorizedError(data *Data) *Data {
 	data.HttpCode = http.StatusUnauthorized
 	data.Code = UserUnauthorizedErrorCode
 	if data.Msg == "" {
 		data.Msg = string(errs.UnauthorizedError)
 	}
-	HandleData(&data)
+	HandleData(data)
 	return data
 }
 
-func CustomError(data Data) Data {
+func CustomError(data *Data) *Data {
 	if data.HttpCode == 0 {
 		data.HttpCode = http.StatusBadRequest
 	}
 	if data.Msg == "" {
 		data.Msg = string(errs.UnDefinitionError)
 	}
-	HandleData(&data)
+	HandleData(data)
 	return data
 }
 

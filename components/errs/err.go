@@ -20,6 +20,7 @@ const (
 	ParamsError          = SimpleError("参数错误")
 	TooManyRequestsError = SimpleError("访问过于频繁")
 	ForbiddenError       = SimpleError("禁止访问")
+	SignError            = SimpleError("签名错误")
 	UnauthorizedError    = SimpleError("未授权")
 	Success              = SimpleError("成功")
 	SuccessAction        = SimpleError("成功行为")
