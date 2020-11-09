@@ -1,0 +1,8 @@
+appname: test
+
+db:
+#  name:     test
+  user:     test
+  password: test
+  port:     1234
+
