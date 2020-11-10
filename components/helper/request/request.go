@@ -72,10 +72,11 @@ func BodyXML(obj interface{}) (io.Reader, error) {
 }
 
 type HttpResponse struct {
-	Header http.Header
-	Body   []byte
-	Dump   []byte
-	Err    error
+	StatusCode int
+	Header     http.Header
+	Body       []byte
+	Dump       []byte
+	Err        error
 }
 
 func HttpRequest(requestParams HttpRequestParams) *HttpResponse {
@@ -116,6 +117,7 @@ func httpRequest(requestParams HttpRequestParams) *HttpResponse {
 	response, httpResponse.Err = requestParams.Client.Do(request)
 	if response != nil {
 		httpResponse.Header = response.Header
+		httpResponse.StatusCode = response.StatusCode
 		defer response.Body.Close()
 	}
 
