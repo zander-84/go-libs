@@ -198,7 +198,7 @@ func BenchmarkAssert(b *testing.B) {
 		Age  int
 	}
 	var s1 = Student{
-		"zander",
+		"zandera",
 		18,
 	}
 
@@ -219,7 +219,7 @@ func BenchmarkUnmarshal(b *testing.B) {
 		Age  int
 	}
 	var s1 = Student{
-		"zander1 ",
+		"zander",
 		18,
 	}
 	vs1, _ := json.Marshal(s1)
