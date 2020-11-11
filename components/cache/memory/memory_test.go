@@ -198,7 +198,7 @@ func BenchmarkAssert(b *testing.B) {
 		Age  int
 	}
 	var s1 = Student{
-		"zander  ",
+		"zander   ",
 		18,
 	}
 
