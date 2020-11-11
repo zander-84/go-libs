@@ -219,7 +219,7 @@ func BenchmarkUnmarshal(b *testing.B) {
 		Age  int
 	}
 	var s1 = Student{
-		"zander1 ",
+		"zander2",
 		18,
 	}
 	vs1, _ := json.Marshal(s1)
