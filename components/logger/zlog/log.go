@@ -5,27 +5,27 @@ import (
 	"go.uber.org/zap"
 )
 
-func (this *ZLog) Debug(msg string, files ...logger.Filed) {
-	this.engine.Debug(msg, this.fs(files...)...)
+func (this *ZLog) Debug(msg string, field ...logger.Field) {
+	this.engine.Debug(msg, this.fs(field...)...)
 }
 
-func (this *ZLog) Info(msg string, files ...logger.Filed) {
-	this.engine.Info(msg, this.fs(files...)...)
+func (this *ZLog) Info(msg string, field ...logger.Field) {
+	this.engine.Info(msg, this.fs(field...)...)
 }
 
-func (this *ZLog) Error(msg string, files ...logger.Filed) {
-	this.engine.Error(msg, this.fs(files...)...)
+func (this *ZLog) Error(msg string, field ...logger.Field) {
+	this.engine.Error(msg, this.fs(field...)...)
 }
 
-func (this *ZLog) Panic(msg string, files ...logger.Filed) {
-	this.engine.Panic(msg, this.fs(files...)...)
+func (this *ZLog) Panic(msg string, field ...logger.Field) {
+	this.engine.Panic(msg, this.fs(field...)...)
 }
 
-func (this *ZLog) Fatal(msg string, files ...logger.Filed) {
-	this.engine.Fatal(msg, this.fs(files...)...)
+func (this *ZLog) Fatal(msg string, field ...logger.Field) {
+	this.engine.Fatal(msg, this.fs(field...)...)
 }
 
-func (this *ZLog) fs(data ...logger.Filed) (fields []zap.Field) {
+func (this *ZLog) fs(data ...logger.Field) (fields []zap.Field) {
 	if len(data) > 0 {
 		fields = make([]zap.Field, 0)
 		for _, v := range data {

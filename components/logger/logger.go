@@ -1,14 +1,14 @@
 package logger
 
 type Logger interface {
-	Debug(from string, files ...Filed)
-	Info(from string, files ...Filed)
-	Error(from string, files ...Filed)
-	Panic(from string, files ...Filed)
-	Fatal(from string, files ...Filed)
+	Debug(from string, field ...Field)
+	Info(from string, field ...Field)
+	Error(from string, field ...Field)
+	Panic(from string, field ...Field)
+	Fatal(from string, field ...Field)
 }
 
-type Filed struct {
+type Field struct {
 	TraceId string
 	Level   string
 	Msg     string
