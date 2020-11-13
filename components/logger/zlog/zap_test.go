@@ -34,9 +34,9 @@ func TestZap(t *testing.T) {
 			MaxSize:    50,
 		},
 	}, []io.Writer{Writer(func(p []byte) (n int, err error) {
-		fmt.Println(string(p))
+		fmt.Println("aaa: ", string(p))
 
-		var data logger.Filed
+		var data logger.Field
 		if err := json.Unmarshal(p, &data); err != nil {
 			return len(p), err
 		}
@@ -46,7 +46,7 @@ func TestZap(t *testing.T) {
 		t.Fatal("start log err: ", err.Error())
 	}
 
-	zlog.Debug("debug", logger.Filed{From: "aaa"})
-	zlog.Info("Info", logger.Filed{From: "bbb", TraceId: "ssssss"})
-	zlog.Error("Error", logger.Filed{From: "aaa"}, logger.Filed{From: "bbb", TraceId: "ssssss"})
+	zlog.Debug("debug", logger.Field{From: "aaa"})
+	zlog.Info("Info", logger.Field{From: "bbb", TraceId: "ssssss"})
+	zlog.Error("Error", logger.Field{From: "aaa"}, logger.Field{From: "bbb", TraceId: "ssssss"})
 }

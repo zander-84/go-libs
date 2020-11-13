@@ -9,9 +9,9 @@ type Logger interface {
 }
 
 type Field struct {
-	TraceId string
-	Level   string
-	Msg     string
-	From    string
-	Ts      string
+	TraceId string `json:"trace_id"`
+	Level   string `json:"level"`
+	Msg     string `json:"msg"`
+	From    string `json:"from"`
+	Ts      string `json:"ts"`
 }

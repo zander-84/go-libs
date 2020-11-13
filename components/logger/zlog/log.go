@@ -3,6 +3,7 @@ package zlog
 import (
 	"github.com/zander-84/go-libs/components/logger"
 	"go.uber.org/zap"
+	"reflect"
 )
 
 func (this *ZLog) Debug(msg string, field ...logger.Field) {
@@ -26,15 +27,39 @@ func (this *ZLog) Fatal(msg string, field ...logger.Field) {
 }
 
 func (this *ZLog) fs(data ...logger.Field) (fields []zap.Field) {
+
 	if len(data) > 0 {
 		fields = make([]zap.Field, 0)
 		for _, v := range data {
-			if v.From != "" {
-				fields = append(fields, zap.String("from", v.From))
+			typ := reflect.TypeOf(v)
+			val := reflect.ValueOf(v)
+			if val.Kind() != reflect.Struct {
+				return fields
 			}
-			if v.TraceId != "" {
-				fields = append(fields, zap.String("trace_id", v.TraceId))
+			for i := 0; i < val.NumField(); i++ {
+				if typ.Field(i).Tag.Get("json") == "ts" || typ.Field(i).Tag.Get("json") == "level" || typ.Field(i).Tag.Get("json") == "msg" {
+					continue
+				}
+
+				if typ.Field(i).Tag.Get("json") != "" {
+
+					if val.Field(i).Kind() == reflect.String {
+						fields = append(fields, zap.String(typ.Field(i).Tag.Get("json"), val.Field(i).String()))
+					} else if val.Field(i).Kind() == reflect.Int {
+						fields = append(fields, zap.Int(typ.Field(i).Tag.Get("json"), int(val.Field(i).Int())))
+					} else if val.Field(i).Kind() == reflect.Int64 {
+						fields = append(fields, zap.Int64(typ.Field(i).Tag.Get("json"), val.Field(i).Int()))
+					}
+				}
+
 			}
+
+			//if v.From != "" {
+			//	fields = append(fields, zap.String("from", v.From))
+			//}
+			//if v.TraceId != "" {
+			//	fields = append(fields, zap.String("trace_id", v.TraceId))
+			//}
 		}
 	}
 	return fields
