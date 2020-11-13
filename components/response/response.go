@@ -44,7 +44,7 @@ func Success(data *Data) *Data {
 }
 
 func SuccessAction(data *Data) *Data {
-	data.HttpCode = http.StatusNoContent
+	data.HttpCode = http.StatusOK
 	data.Code = SuccessActionCode
 	if data.Msg == "" {
 		data.Msg = string(errs.SuccessAction)
