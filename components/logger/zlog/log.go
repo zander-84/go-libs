@@ -49,6 +49,8 @@ func (this *ZLog) fs(data ...logger.Field) (fields []zap.Field) {
 						fields = append(fields, zap.Int(typ.Field(i).Tag.Get("json"), int(val.Field(i).Int())))
 					} else if val.Field(i).Kind() == reflect.Int64 {
 						fields = append(fields, zap.Int64(typ.Field(i).Tag.Get("json"), val.Field(i).Int()))
+					} else if val.Field(i).Kind() == reflect.Float64 {
+						fields = append(fields, zap.Float64(typ.Field(i).Tag.Get("json"), val.Field(i).Float()))
 					}
 				}
 
