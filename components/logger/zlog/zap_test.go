@@ -47,6 +47,6 @@ func TestZap(t *testing.T) {
 	}
 
 	zlog.Debug("debug", logger.Field{From: "aaa"})
-	zlog.Info("Info", logger.Field{From: "bbb", TraceId: "ssssss"})
+	zlog.Info("Info", logger.Field{From: "bbb", TraceId: "ssssss", SubFields: map[string]interface{}{"ip": "127.0.0.1", "age": 18}})
 	zlog.Error("Error", logger.Field{From: "aaa"}, logger.Field{From: "bbb", TraceId: "ssssss"})
 }

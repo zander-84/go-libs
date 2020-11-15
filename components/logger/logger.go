@@ -9,9 +9,16 @@ type Logger interface {
 }
 
 type Field struct {
-	TraceId string `json:"trace_id"`
-	Level   string `json:"level"`
-	Msg     string `json:"msg"`
-	From    string `json:"from"`
-	Ts      string `json:"ts"`
+	TraceId   string                 `json:"trace_id"`
+	Level     string                 `json:"level"`
+	Msg       string                 `json:"msg"`
+	From      string                 `json:"from"`
+	Ts        string                 `json:"ts"`
+	Belong    string                 `json:"belong"` //
+	SubFields map[string]interface{} `json:"sub_fields"`
+}
+
+type Instance struct {
+	name string
+	log  Logger
 }

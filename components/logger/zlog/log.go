@@ -42,26 +42,18 @@ func (this *ZLog) fs(data ...logger.Field) (fields []zap.Field) {
 				}
 
 				if typ.Field(i).Tag.Get("json") != "" {
-
-					if val.Field(i).Kind() == reflect.String {
-						fields = append(fields, zap.String(typ.Field(i).Tag.Get("json"), val.Field(i).String()))
-					} else if val.Field(i).Kind() == reflect.Int {
-						fields = append(fields, zap.Int(typ.Field(i).Tag.Get("json"), int(val.Field(i).Int())))
-					} else if val.Field(i).Kind() == reflect.Int64 {
-						fields = append(fields, zap.Int64(typ.Field(i).Tag.Get("json"), val.Field(i).Int()))
-					} else if val.Field(i).Kind() == reflect.Float64 {
-						fields = append(fields, zap.Float64(typ.Field(i).Tag.Get("json"), val.Field(i).Float()))
+					if val.Field(i).Kind() == reflect.Map {
+						for _, mk := range val.Field(i).MapKeys() {
+							if mk.String() == "ts" || mk.String() == "level" || mk.String() == "msg" {
+								continue
+							}
+							fields = append(fields, zap.Any(mk.String(), val.Field(i).MapIndex(mk).Elem().Interface()))
+						}
+					} else {
+						fields = append(fields, zap.Any(typ.Field(i).Tag.Get("json"), val.Field(i).Interface()))
 					}
 				}
-
 			}
-
-			//if v.From != "" {
-			//	fields = append(fields, zap.String("from", v.From))
-			//}
-			//if v.TraceId != "" {
-			//	fields = append(fields, zap.String("trace_id", v.TraceId))
-			//}
 		}
 	}
 	return fields
