@@ -5,3 +5,15 @@
 {"level":"info","ts":"2020-11-15 21:17:33","msg":"Info","trace_id":"ssssss","from":"bbb","belong":"","ip":"127.0.0.1","age":18}
 {"level":"error","ts":"2020-11-15 21:17:33","msg":"Error","trace_id":"","from":"aaa","belong":""}
 {"level":"error","ts":"2020-11-15 21:17:33","msg":"Error","trace_id":"ssssss","from":"bbb","belong":""}
+2020/11/15 21:19:46.862101 zap.go:95: starting log...
+{"level":"info","ts":"2020-11-15 21:19:46","msg":"Info","trace_id":"ssssss","from":"bbb","belong":"","ip":"127.0.0.1","age":18}
+{"level":"error","ts":"2020-11-15 21:19:46","msg":"Error","trace_id":"","from":"aaa","belong":""}
+{"level":"error","ts":"2020-11-15 21:19:46","msg":"Error","trace_id":"ssssss","from":"bbb","belong":""}
+{"level":"error","ts":"2020-11-15 21:19:46","msg":"Error2"}
+{"level":"error","ts":"2020-11-15 21:19:46","msg":"Error2","trace_id":"","from":"","belong":""}
+2020/11/15 21:20:04.815037 zap.go:95: starting log...
+{"level":"info","ts":"2020-11-15 21:20:04","msg":"Info","trace_id":"ssssss","from":"bbb","belong":"","ip":"127.0.0.1","age":18}
+{"level":"error","ts":"2020-11-15 21:20:04","msg":"Error","trace_id":"","from":"aaa","belong":""}
+{"level":"error","ts":"2020-11-15 21:20:04","msg":"Error","trace_id":"ssssss","from":"bbb","belong":""}
+{"level":"error","ts":"2020-11-15 21:20:04","msg":"Error2"}
+{"level":"error","ts":"2020-11-15 21:20:04","msg":"Error3","trace_id":"","from":"","belong":""}
