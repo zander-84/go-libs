@@ -49,7 +49,8 @@ func (this *Rdb) Start() error {
 		IdleTimeout:  time.Duration(this.conf.IdleTimeout) * time.Second,
 		MinIdleConns: this.conf.MinIdle,
 	})
-	this.err = nil
+
+	this.err = this.engine.Ping(context.Background()).Err()
 	return this.err
 }
 
