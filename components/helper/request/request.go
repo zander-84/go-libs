@@ -113,16 +113,17 @@ func httpRequest(requestParams HttpRequestParams) *HttpResponse {
 	}
 	request.Close = true
 
+	if requestParams.Debug {
+		httpResponse.Dump, _ = httputil.DumpRequest(request, true)
+	}
+
 	var response *http.Response
 	response, httpResponse.Err = requestParams.Client.Do(request)
+
 	if response != nil {
 		httpResponse.Header = response.Header
 		httpResponse.StatusCode = response.StatusCode
 		defer response.Body.Close()
-	}
-
-	if requestParams.Debug {
-		httpResponse.Dump, _ = httputil.DumpRequest(request, true)
 	}
 
 	if httpResponse.Err != nil {
