@@ -103,6 +103,13 @@ func UserForbiddenErrorData(c *gin.Context, data *response.Data) {
 	c.JSON(data.HttpCode, data)
 }
 
+func UserForbiddenError(c *gin.Context, dat interface{}) {
+	data := response.NewData()
+	data.Data = dat
+	data.TraceID = GetTraceId(c)
+	UserSpaceErrorData(c, data)
+}
+
 func UserSignError(c *gin.Context, dat interface{}) {
 	data := response.NewData()
 	data.Data = dat

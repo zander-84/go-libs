@@ -84,3 +84,31 @@ func (t *Time) FormatDaySlash() string {
 func (t *Time) FormatDayHyphen() string {
 	return t.Now().Format("2006-01-02")
 }
+
+func (t *Time) FormatSlashFromTime(timer time.Time) string {
+	if timer.IsZero() {
+		return ""
+	}
+	return timer.In(t.location).Format("2006/01/02 15:04:05")
+}
+
+func (t *Time) FormatHyphenFromTime(timer time.Time) string {
+	if timer.IsZero() {
+		return ""
+	}
+	return timer.In(t.location).Format("2006-01-02 15:04:05")
+}
+
+func (t *Time) FormatDaySlashFromTime(timer time.Time) string {
+	if timer.IsZero() {
+		return ""
+	}
+	return timer.In(t.location).Format("2006/01/02")
+}
+
+func (t *Time) FormatDayHyphenFromTime(timer time.Time) string {
+	if timer.IsZero() {
+		return ""
+	}
+	return timer.In(t.location).Format("2006-01-02")
+}
