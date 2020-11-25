@@ -21,7 +21,7 @@ func (this *BasicModel) MarshalJSON() ([]byte, error) {
 }
 
 func (this *BasicModel) FilterFields(data map[string]interface{}) map[string]interface{} {
-	if this.DisplayFields == nil {
+	if this.DisplayFields == nil || len(this.DisplayFields) < 1 {
 		return data
 	} else {
 		for key, _ := range data {
