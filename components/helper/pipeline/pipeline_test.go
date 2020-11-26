@@ -13,9 +13,10 @@ func TestPipeline_DOPipeline(t *testing.T) {
 	defer close(done)
 	c1 := Event{
 		Ctx: context.Background(),
-		Handler: func(i interface{}) (interface{}, error) {
-			data := i.(int)
-			return data * 9, nil
+		Handler: func(e *Event) error {
+			data := e.Input.(int)
+			e.Output = data * 9
+			return nil
 		},
 		Input: 11,
 		Error: nil,
@@ -24,10 +25,11 @@ func TestPipeline_DOPipeline(t *testing.T) {
 	defer cancel()
 	c2 := Event{
 		Ctx: ctx,
-		Handler: func(i interface{}) (interface{}, error) {
+		Handler: func(e *Event) error {
 			time.Sleep(2 * time.Second)
-			data := i.(int)
-			return data * 9, nil
+			data := e.Input.(int)
+			e.Output = data * 9
+			return nil
 		},
 		Input: 22,
 		Error: nil,

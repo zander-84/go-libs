@@ -26,7 +26,7 @@ func (this *Pipeline) Do(done chan struct{}, events ...Event) []Event {
 type Event struct {
 	Ctx     context.Context
 	Name    string
-	Handler func(input interface{}) (interface{}, error)
+	Handler func(e *Event) error
 	Input   interface{}
 	Output  interface{}
 	Error   error
@@ -53,15 +53,15 @@ func consumer(done <-chan struct{}, inEvent <-chan Event) <-chan Event {
 				return
 			default:
 				func() {
-					fin := make(chan bool, 0)
+					fin := make(chan error, 0)
 					go func() {
 						defer func() {
 							if err := recover(); err != nil {
 								return
 							}
 						}()
-						e.Output, e.Error = e.Handler(e.Input)
-						fin <- true
+						e.Error = e.Handler(&e)
+						fin <- e.Error
 					}()
 
 					select {
