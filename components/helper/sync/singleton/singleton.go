@@ -3,6 +3,7 @@ package singleton
 import (
 	"context"
 	"errors"
+	"fmt"
 )
 
 //单人工作模式
@@ -33,7 +34,15 @@ func (thisSingleton *Singleton) AddJob(job *Job) error {
 }
 func (thisSingleton *Singleton) Run() {
 	for job := range thisSingleton.jobs {
-		job.Error = job.Handler(job)
+		job.Error = func() (err error) {
+			defer func() {
+				if err := recover(); err != nil {
+					err = fmt.Errorf("panic Handler: %v", err)
+				}
+			}()
+
+			return job.Handler(job)
+		}()
 		thisSingleton.Data = append(thisSingleton.Data, job)
 	}
 	thisSingleton.stop <- struct{}{}
