@@ -2,7 +2,6 @@ package singleton
 
 import (
 	"context"
-	"errors"
 	"fmt"
 )
 
@@ -22,9 +21,9 @@ func NewSingleton(taskNum int) *Singleton {
 }
 
 func (thisSingleton *Singleton) AddJob(job *Job) error {
-	if cap(thisSingleton.jobs) == len(thisSingleton.jobs) {
-		return errors.New("overload")
-	}
+	//if cap(thisSingleton.jobs) == len(thisSingleton.jobs) {
+	//	return errors.New("overload")
+	//}
 	select {
 	case thisSingleton.jobs <- job:
 		return nil
