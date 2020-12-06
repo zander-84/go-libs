@@ -1,7 +1,6 @@
 package pipeline
 
 import (
-	"context"
 	"sync"
 )
 
@@ -21,15 +20,6 @@ func (this *Pipeline) Do(done chan struct{}, events ...Event) []Event {
 		res = append(res, e)
 	}
 	return res
-}
-
-type Event struct {
-	Ctx     context.Context
-	Name    string
-	Handler func(e *Event) error
-	Input   interface{}
-	Output  interface{}
-	Error   error
 }
 
 func producer(events ...Event) <-chan Event {
