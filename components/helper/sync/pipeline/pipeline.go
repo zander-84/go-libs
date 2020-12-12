@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"context"
+	"fmt"
 	"sync"
 )
 
@@ -84,34 +85,43 @@ func (thisPipeline *Pipeline) gen(events ...Event) <-chan Event {
 	return eventsChan
 }
 
-func (thisPipeline *Pipeline) consumer(inEvent Event) Event {
+func (thisPipeline *Pipeline) consumer(event Event) Event {
 	select {
 	case <-thisPipeline.done:
-		inEvent.Error = thisPipeline.ctx.Err()
-		return inEvent
+		event.Error = thisPipeline.ctx.Err()
+		return event
 	default:
-		if inEvent.Ctx == nil {
-			inEvent.Error = inEvent.Handler(&inEvent)
-			return inEvent
+		if event.Ctx == nil {
+			func() {
+				defer func() {
+					if err := recover(); err != nil {
+						event.Error = fmt.Errorf("painc %v", err)
+					}
+				}()
+				event.Error = event.Handler(&event)
+			}()
+			return event
 		}
 
 		fin := make(chan error, 0)
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {
+					event.Error = fmt.Errorf("painc %v", err)
+					fin <- event.Error
 					return
 				}
 			}()
-			inEvent.Error = inEvent.Handler(&inEvent)
-			fin <- inEvent.Error
+			event.Error = event.Handler(&event)
+			fin <- event.Error
 		}()
 
 		select {
-		case <-inEvent.Ctx.Done():
-			inEvent.Error = inEvent.Ctx.Err()
-			return inEvent
+		case <-event.Ctx.Done():
+			event.Error = event.Ctx.Err()
+			return event
 		case <-fin:
-			return inEvent
+			return event
 		}
 
 	}
