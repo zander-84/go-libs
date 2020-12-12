@@ -1,28 +1,79 @@
 package pipeline
 
 import (
+	"context"
 	"sync"
 )
 
-type Pipeline struct{}
-
-func NewPipeline() *Pipeline {
-	return new(Pipeline)
+type Pipeline struct {
+	ctx     context.Context
+	workers chan struct{}
+	done    chan struct{}
+	jobLen  int
 }
 
-func (this *Pipeline) Do(done chan struct{}, events ...Event) []Event {
-	eventChans := make([]<-chan Event, 0)
-	for _, e := range events {
-		eventChans = append(eventChans, consumer(done, producer(e)))
+func NewPipeline(ctx context.Context, workers int) *Pipeline {
+	thisPipeline := new(Pipeline)
+	thisPipeline.ctx = ctx
+	thisPipeline.done = make(chan struct{})
+	if workers >= 0 {
+		thisPipeline.workers = make(chan struct{}, workers)
 	}
+	return thisPipeline
+}
+func (thisPipeline *Pipeline) Do(events ...Event) ([]Event, error) {
+	var res []Event
+	fin := make(chan struct{})
+	go func() {
+		res = thisPipeline.do(events...)
+		fin <- struct{}{}
+	}()
+
+	select {
+	case <-thisPipeline.ctx.Done():
+		return nil, thisPipeline.ctx.Err()
+	case <-fin:
+		return res, nil
+	}
+}
+
+func (thisPipeline *Pipeline) do(events ...Event) []Event {
+	thisPipeline.jobLen = len(events)
 	var res = make([]Event, 0)
-	for e := range mergeEvent(done, eventChans...) {
+	for e := range thisPipeline.mergeEvent(thisPipeline.gen(events...)) {
 		res = append(res, e)
 	}
 	return res
 }
+func (thisPipeline *Pipeline) mergeEvent(events <-chan Event) <-chan Event {
+	var wg sync.WaitGroup
+	outEvent := make(chan Event, thisPipeline.jobLen)
 
-func producer(events ...Event) <-chan Event {
+	for e := range events {
+		if thisPipeline.workers != nil {
+			thisPipeline.workers <- struct{}{}
+		}
+		wg.Add(1)
+		go func(evt Event) {
+			defer func() {
+				wg.Done()
+				if thisPipeline.workers != nil {
+					<-thisPipeline.workers
+				}
+			}()
+			outEvent <- thisPipeline.consumer(evt)
+		}(e)
+	}
+
+	go func() {
+		wg.Wait()
+		close(outEvent)
+	}()
+
+	return outEvent
+}
+
+func (thisPipeline *Pipeline) gen(events ...Event) <-chan Event {
 	eventsChan := make(chan Event, len(events))
 	go func() {
 		defer close(eventsChan)
@@ -33,67 +84,35 @@ func producer(events ...Event) <-chan Event {
 	return eventsChan
 }
 
-func consumer(done <-chan struct{}, inEvent <-chan Event) <-chan Event {
-	outEvent := make(chan Event)
-	go func() {
-		defer close(outEvent)
-		for e := range inEvent {
-			select {
-			case <-done:
-				return
-			default:
-				func() {
-					fin := make(chan error, 0)
-					go func() {
-						defer func() {
-							if err := recover(); err != nil {
-								return
-							}
-						}()
-						e.Error = e.Handler(&e)
-						fin <- e.Error
-					}()
-
-					select {
-					case <-e.Ctx.Done():
-						e.Error = e.Ctx.Err()
-						outEvent <- e
-					case <-fin:
-						outEvent <- e
-					}
-
-					//e.Output, e.Error = e.Handler(e.Input)
-					//outEvent <- e
-				}()
-			}
+func (thisPipeline *Pipeline) consumer(inEvent Event) Event {
+	select {
+	case <-thisPipeline.done:
+		inEvent.Error = thisPipeline.ctx.Err()
+		return inEvent
+	default:
+		if inEvent.Ctx == nil {
+			inEvent.Error = inEvent.Handler(&inEvent)
+			return inEvent
 		}
-	}()
-	return outEvent
-}
 
-func mergeEvent(done <-chan struct{}, events ...<-chan Event) <-chan Event {
-	var wg sync.WaitGroup
-	outEvent := make(chan Event)
+		fin := make(chan error, 0)
+		go func() {
+			defer func() {
+				if err := recover(); err != nil {
+					return
+				}
+			}()
+			inEvent.Error = inEvent.Handler(&inEvent)
+			fin <- inEvent.Error
+		}()
 
-	output := func(es <-chan Event) {
-		for e := range es {
-			select {
-			case outEvent <- e:
-			case <-done:
-			}
+		select {
+		case <-inEvent.Ctx.Done():
+			inEvent.Error = inEvent.Ctx.Err()
+			return inEvent
+		case <-fin:
+			return inEvent
 		}
-		wg.Done()
+
 	}
-	wg.Add(len(events))
-
-	for _, e := range events {
-		go output(e)
-	}
-
-	go func() {
-		wg.Wait()
-		close(outEvent)
-	}()
-
-	return outEvent
 }
