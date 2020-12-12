@@ -32,6 +32,7 @@ func (thisPipeline *Pipeline) Do(events ...Event) ([]Event, error) {
 
 	select {
 	case <-thisPipeline.ctx.Done():
+		close(thisPipeline.done)
 		return nil, thisPipeline.ctx.Err()
 	case <-fin:
 		return res, nil
