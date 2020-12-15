@@ -23,6 +23,10 @@ func NewPipeline(ctx context.Context, workers int) *Pipeline {
 	return thisPipeline
 }
 func (thisPipeline *Pipeline) Do(events ...Event) ([]Event, error) {
+	if thisPipeline.ctx.Done() == nil {
+		return thisPipeline.do(events...), nil
+	}
+
 	var res []Event
 	fin := make(chan struct{})
 	go func() {
