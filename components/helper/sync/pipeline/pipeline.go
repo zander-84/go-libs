@@ -96,7 +96,7 @@ func (thisPipeline *Pipeline) consumer(event Event) Event {
 		event.Error = thisPipeline.ctx.Err()
 		return event
 	default:
-		if event.Ctx == nil {
+		if event.Ctx == nil || event.Ctx.Done() == nil {
 			func() {
 				defer func() {
 					if err := recover(); err != nil {
