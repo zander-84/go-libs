@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"github.com/golang/groupcache/singleflight"
 	"github.com/patrickmn/go-cache"
 	"github.com/zander-84/go-libs/components/errs"
 	"sync"
@@ -9,11 +10,12 @@ import (
 )
 
 type Memory struct {
-	engine *cache.Cache
-	conf   Conf
-	once   int64
-	err    error
-	lock   sync.Mutex
+	engine       *cache.Cache
+	conf         Conf
+	once         int64
+	err          error
+	lock         sync.Mutex
+	singleflight singleflight.Group
 }
 
 func NewMemory(conf Conf) *Memory {
@@ -34,9 +36,11 @@ func (this *Memory) Start() error {
 	defer this.lock.Unlock()
 
 	atomic.AddInt64(&this.once, 1)
-	if this.once != 1 {
+	if atomic.LoadInt64(&this.once) != 1 {
+		atomic.StoreInt64(&this.once, 2)
 		return this.err
 	}
+
 	this.engine = cache.New(time.Duration(this.conf.Expiration)*time.Minute, time.Duration(this.conf.CleanupInterval)*time.Minute)
 	this.err = nil
 	return nil

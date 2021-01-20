@@ -3,6 +3,7 @@ package goredis
 import (
 	"context"
 	"github.com/go-redis/redis/v8"
+	"github.com/golang/groupcache/singleflight"
 	"github.com/zander-84/go-libs/components/errs"
 	"sync"
 	"sync/atomic"
@@ -10,12 +11,13 @@ import (
 )
 
 type Rdb struct {
-	engine  *redis.Client
-	conf    Conf
-	once    int64
-	err     error
-	lock    sync.Mutex
-	context context.Context
+	engine       *redis.Client
+	conf         Conf
+	once         int64
+	err          error
+	lock         sync.Mutex
+	context      context.Context
+	singleflight singleflight.Group
 }
 
 func NewRdb(conf Conf) *Rdb {
@@ -37,7 +39,8 @@ func (this *Rdb) Start() error {
 	defer this.lock.Unlock()
 
 	atomic.AddInt64(&this.once, 1)
-	if this.once != 1 {
+	if atomic.LoadInt64(&this.once) != 1 {
+		atomic.StoreInt64(&this.once, 2)
 		return this.err
 	}
 

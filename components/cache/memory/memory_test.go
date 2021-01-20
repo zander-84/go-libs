@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"encoding/json"
 	"reflect"
 	"testing"
@@ -25,7 +26,7 @@ func TestMemory(t *testing.T) {
 }
 
 func testRdbFlushDB(t *testing.T, memory *Memory) {
-	if err := memory.FlushDB(); err != nil {
+	if err := memory.FlushDB(context.Background()); err != nil {
 		t.Fatal("FlushDB  err: ", err.Error())
 	}
 }
@@ -35,7 +36,7 @@ func testRdbGetOrSetFast(t *testing.T, memory *Memory) {
 	val := "aaaa"
 	get := ""
 
-	get2, err := memory.GetOrSetFast(key, &get, 100*time.Second, func() (interface{}, error) {
+	get2, err := memory.GetOrSetFast(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
 		return val, nil
 	})
 	if err != nil {
@@ -50,7 +51,7 @@ func testRdbGetOrSetFast(t *testing.T, memory *Memory) {
 		t.Fatal("testRdbGetOrSetFast err: ", get2)
 	}
 
-	get2, err = memory.GetOrSetFast(key, &get, 100*time.Second, func() (interface{}, error) {
+	get2, err = memory.GetOrSetFast(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
 		return "err", nil
 	})
 	if err != nil {
@@ -71,7 +72,7 @@ func testRdbGetOrSet(t *testing.T, memory *Memory) {
 	val := "aaaa"
 	get := ""
 
-	if err := memory.GetOrSet(key, &get, 100*time.Second, func() (interface{}, error) {
+	if err := memory.GetOrSet(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
 		return val, nil
 	}); err != nil {
 		t.Fatal("testRdbGetOrSet  err: ", err.Error())
@@ -84,13 +85,13 @@ func testRdbGetOrSet(t *testing.T, memory *Memory) {
 }
 func testRdbExists(t *testing.T, memory *Memory) {
 	key := "maps"
-	if ok, err := memory.Exists(key, key); err != nil {
+	if ok, err := memory.Exists(context.Background(), key, key); err != nil {
 		t.Fatal("Exists  err: ", err.Error())
 	} else if !ok {
 
 	}
 	testMemoryString(t, memory)
-	if ok, err := memory.Exists("string", "string"); err != nil {
+	if ok, err := memory.Exists(context.Background(), "string", "string"); err != nil {
 		t.Fatal("Exists  err: ", err.Error())
 	} else if !ok {
 		t.Fatal("Exists   err ok: ")
@@ -115,11 +116,11 @@ func testRdbStruct(t *testing.T, memory *Memory) {
 			term: 1,
 		},
 	}
-	if err := memory.Set(key, val, 100*time.Second); err != nil {
+	if err := memory.Set(context.Background(), key, val, 100*time.Second); err != nil {
 		t.Fatal("set struct err: ", err.Error())
 	}
 	var get = new(Student)
-	if err := memory.Get(key, get); err != nil {
+	if err := memory.Get(context.Background(), key, get); err != nil {
 		t.Fatal("get struct err: ", err.Error())
 	}
 	if get.Name != val.Name || get.Age != val.Age {
@@ -129,7 +130,7 @@ func testRdbStruct(t *testing.T, memory *Memory) {
 	//get.Age=18
 	//get.Class.term=99
 	var get2 = new(Student)
-	if err := memory.Get(key, get2); err != nil {
+	if err := memory.Get(context.Background(), key, get2); err != nil {
 		t.Fatal("get struct err: ", err.Error())
 	}
 	//fmt.Println(get2.Class.term)
@@ -141,11 +142,11 @@ func testMemoryString(t *testing.T, memory *Memory) {
 	var valPtr *string
 	val := "string2"
 	valPtr = &val
-	if err := memory.Set(key, valPtr, 0); err != nil {
+	if err := memory.Set(context.Background(), key, valPtr, 0); err != nil {
 		t.Fatal("set string err: ", err.Error())
 	}
 	get := ""
-	if err := memory.Get(key, &get); err != nil {
+	if err := memory.Get(context.Background(), key, &get); err != nil {
 		t.Fatal("get string err: ", err.Error())
 	}
 }
@@ -153,17 +154,17 @@ func testMemoryString(t *testing.T, memory *Memory) {
 func testMemorySlice(t *testing.T, memory *Memory) {
 	key := "slice"
 	val := []string{"a", "b"}
-	if err := memory.Set(key, val, 0); err != nil {
+	if err := memory.Set(context.Background(), key, val, 0); err != nil {
 		t.Fatal("set string err: ", err.Error())
 	}
 	var get []string
-	if err := memory.Get(key, &get); err != nil {
+	if err := memory.Get(context.Background(), key, &get); err != nil {
 		t.Fatal("get string err: ", err.Error())
 	}
 
 	val[0] = "c"
 	var get2 []string
-	if err := memory.Get(key, &get2); err != nil {
+	if err := memory.Get(context.Background(), key, &get2); err != nil {
 		t.Fatal("get string err: ", err.Error())
 	}
 }

@@ -59,6 +59,13 @@ func BodyJSON(obj interface{}) (io.Reader, error) {
 	return bytes.NewReader(byts), nil
 }
 
+func BodyString(data string) io.Reader {
+	return strings.NewReader(data)
+}
+func BodyByte(data []byte) io.Reader {
+	return bytes.NewReader(data)
+}
+
 func BodyXML(obj interface{}) (io.Reader, error) {
 	if obj == nil {
 		return nil, nil
@@ -98,7 +105,7 @@ func HttpRequest(requestParams HttpRequestParams) *HttpResponse {
 func httpRequest(requestParams HttpRequestParams) *HttpResponse {
 	if requestParams.Client == nil {
 		requestParams.Client = new(http.Client)
-		requestParams.Client.Timeout = 2 * 60 * time.Second
+		requestParams.Client.Timeout = 90 * time.Second
 	}
 
 	httpResponse := new(HttpResponse)
@@ -136,6 +143,14 @@ func httpRequest(requestParams HttpRequestParams) *HttpResponse {
 			httpResponse.Err = errors.New("no response")
 			return httpResponse
 		}
+	}
+}
+
+func (h *HttpResponse) DebugMsg() string {
+	if h.Err == nil {
+		return "req:\n " + string(h.Dump) + " \nresp:\n " + string(h.Body) + "\n"
+	} else {
+		return "req:\n " + string(h.Dump) + " \nerrResp:\n " + h.Err.Error() + "\n"
 	}
 }
 

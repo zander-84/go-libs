@@ -1,23 +1,24 @@
 package cache
 
 import (
+	"context"
 	"time"
 )
 
 type Cache interface {
-	Exists(key ...string) (bool, error)
+	Exists(ctx context.Context, key ...string) (bool, error)
 
-	Get(key string, ptrValue interface{}) error
+	Get(ctx context.Context, key string, ptrValue interface{}) error
 
-	GetFast(key string, ptrValue interface{}) (interface{}, error)
+	GetFast(ctx context.Context, key string, ptrValue interface{}) (interface{}, error)
 
-	Set(key string, value interface{}, expires time.Duration) error
+	Set(ctx context.Context, key string, value interface{}, expires time.Duration) error
 
-	Delete(key ...string) error
+	Delete(ctx context.Context, key ...string) error
 
-	GetOrSet(key string, ptrValue interface{}, expires time.Duration, f func() (value interface{}, err error)) error
+	GetOrSet(ctx context.Context, key string, ptrValue interface{}, expires time.Duration, f func() (value interface{}, err error)) error
 
-	GetOrSetFast(key string, ptrValue interface{}, expires time.Duration, f func() (value interface{}, err error)) (interface{}, error)
+	GetOrSetFast(ctx context.Context, key string, ptrValue interface{}, expires time.Duration, f func() (value interface{}, err error)) (interface{}, error)
 
-	FlushDB() error
+	FlushDB(ctx context.Context) error
 }

@@ -2,16 +2,19 @@ package response
 
 import (
 	"github.com/zander-84/go-libs/components/errs"
+	"github.com/zander-84/go-libs/components/response/code"
 	"net/http"
 )
 
+var Debug = false
+
 type Data struct {
-	HttpCode  int         `json:"-"`
-	Code      string      `json:"code"`
-	Msg       interface{} `json:"msg"`
-	Data      interface{} `json:"data"`
-	TraceID   interface{} `json:"trace_id,omitempty"`
-	Debug     interface{} `json:"debug,omitempty"`
+	HttpCode  int `json:"-"`
+	Code      int
+	Msg       interface{}
+	Data      interface{}
+	Debug     interface{} `json:",omitempty"`
+	TraceID   string      `json:",omitempty"`
 	ShowDebug bool        `json:"-"`
 }
 
@@ -19,153 +22,162 @@ func NewData() *Data {
 	return new(Data)
 }
 
-const (
-	//系统code码预留
-	SuccessCode                  = "100200" // 成功
-	SuccessActionCode            = "100201" // 成功行为
-	UserSpaceErrorCode           = "100400" // 用户空间错误
-	UserParamsErrorCode          = "101400" // 参数错误
-	UserAlterErrorCode           = "102400" // 简单错误
-	UserForbiddenErrorCode       = "100403" // 禁止访问
-	UserSignErrorCode            = "101403" // 签名错误
-	UserUnauthorizedErrorCode    = "100401" // 未认证
-	UserTooManyRequestsErrorCode = "100429" // 请求过于频繁
-	SystemSpaceErrorCode         = "100500" // 系统空间错误
-)
+func (this *Data) SetData(data interface{}) *Data  { this.Data = data; return this }
+func (this *Data) SetDebug(debug bool) *Data       { this.ShowDebug = debug; return this }
+func (this *Data) SetTraceID(traceID string) *Data { this.TraceID = traceID; return this }
 
 func Success(data *Data) *Data {
 	data.HttpCode = http.StatusOK
-	data.Code = SuccessCode
-	if data.Msg == "" {
-		data.Msg = string(errs.Success)
+	data.Code = code.SuccessCode
+	if data.Msg == nil {
+		data.Msg = errs.Success.Error()
 	}
-	HandleData(data)
 	return data
 }
 
 func SuccessAction(data *Data) *Data {
 	data.HttpCode = http.StatusOK
-	data.Code = SuccessActionCode
+	data.Code = code.SuccessActionCode
 	if data.Msg == "" {
-		data.Msg = string(errs.SuccessAction)
+		data.Msg = errs.SuccessAction.Error()
 	}
-	HandleData(data)
 	return data
 }
 
 func SystemSpaceError(data *Data) *Data {
 	data.HttpCode = http.StatusInternalServerError
-	data.Code = SystemSpaceErrorCode
-	if data.Msg == "" {
-		data.Msg = string(errs.SystemError)
+	data.Code = code.SystemSpaceErrorCode
+	if data.Msg == nil {
+		data.Msg = errs.SystemError.Error()
 	}
-	HandleData(data)
+	if Debug {
+		data.Debug = data.Data
+	}
+	if data.ShowDebug {
+		data.Debug = data.Data
+	}
+	data.Data = "服务异常"
+	return data
+}
+
+func UnknowError(data *Data) *Data {
+	data.HttpCode = http.StatusInternalServerError
+	data.Code = code.UnknownErrorCode
+	if data.Msg == nil {
+		data.Msg = errs.UnkonwError.Error()
+	}
+	if data.ShowDebug {
+		data.Debug = data.Data
+	}
+	return data
+}
+
+func IgnoreError(data *Data) *Data {
+	data.HttpCode = http.StatusInternalServerError
+	data.Code = code.IgnoreErrorCode
+	if data.Msg == nil {
+		data.Msg = errs.SystemIgnoreError.Error()
+	}
+	if Debug {
+		data.Debug = data.Data
+	}
+	if data.ShowDebug {
+		data.Debug = data.Data
+	}
+	data.Data = nil
 	return data
 }
 
 func UserSpaceError(data *Data) *Data {
 	data.HttpCode = http.StatusBadRequest
-	data.Code = UserSpaceErrorCode
+	data.Code = code.UserSpaceErrorCode
 
-	if data.Msg == "" {
-		data.Msg = string(errs.UserError)
+	if data.Msg == nil {
+		data.Msg = errs.UnkonwError.Error()
 	}
-	HandleData(data)
+	if data.ShowDebug {
+		data.Debug = data.Data
+	}
 	return data
 }
 
-func UserAlterError(data *Data) *Data {
+func AlterError(data *Data) *Data {
 	data.HttpCode = http.StatusBadRequest
-	data.Code = UserAlterErrorCode
-	if data.Msg == "" {
-		data.Msg = string(errs.AlterError)
+	data.Code = code.AlterErrorCode
+	if data.Msg == nil {
+		data.Msg = errs.AlterError.Error()
 	}
-	HandleData(data)
+	if data.ShowDebug {
+		data.Debug = data.Data
+	}
 	return data
 }
 
-func UserParamsError(data *Data) *Data {
+func ParamsError(data *Data) *Data {
 	data.HttpCode = http.StatusBadRequest
-	data.Code = UserParamsErrorCode
-	if data.Msg == "" {
-		data.Msg = string(errs.ParamsError)
+	data.Code = code.ParamsErrorCode
+	if data.Msg == nil {
+		data.Msg = errs.ParamsError.Error()
 	}
-	HandleData(data)
+	if data.ShowDebug {
+		data.Debug = data.Data
+	}
 	return data
 }
-func UserForbiddenError(data *Data) *Data {
+func ForbiddenError(data *Data) *Data {
 	data.HttpCode = http.StatusForbidden
-	data.Code = UserForbiddenErrorCode
-	if data.Msg == "" {
-		data.Msg = string(errs.ForbiddenError)
+	data.Code = code.ForbiddenErrorCode
+	if data.Msg == nil {
+		data.Msg = errs.ForbiddenError.Error()
 	}
-	HandleData(data)
+	if data.ShowDebug {
+		data.Debug = data.Data
+	}
 	return data
 }
-func UserSignError(data *Data) *Data {
+func SignError(data *Data) *Data {
 	data.HttpCode = http.StatusForbidden
-	data.Code = UserSignErrorCode
-	if data.Msg == "" {
-		data.Msg = string(errs.SignError)
+	data.Code = code.SignErrorCode
+	if data.Msg == nil {
+		data.Msg = errs.SignError.Error()
 	}
-	HandleData(data)
+	if data.ShowDebug {
+		data.Debug = data.Data
+	}
 	return data
 }
-func UserTooManyRequestsError(data *Data) *Data {
+func TooManyRequestsError(data *Data) *Data {
 	data.HttpCode = http.StatusTooManyRequests
-	data.Code = UserTooManyRequestsErrorCode
-	if data.Msg == "" {
-		data.Msg = string(errs.TooManyRequestsError)
+	data.Code = code.TooManyRequestsErrorCode
+	if data.Msg == nil {
+		data.Msg = errs.TooManyRequestsError.Error()
 	}
-	HandleData(data)
+	if data.ShowDebug {
+		data.Debug = data.Data
+	}
 	return data
 }
-func UserUnauthorizedError(data *Data) *Data {
+func UnauthorizedError(data *Data) *Data {
 	data.HttpCode = http.StatusUnauthorized
-	data.Code = UserUnauthorizedErrorCode
-	if data.Msg == "" {
-		data.Msg = string(errs.UnauthorizedError)
+	data.Code = code.UnauthorizedErrorCode
+	if data.Msg == nil {
+		data.Msg = errs.UnauthorizedError.Error()
 	}
-	HandleData(data)
+	if data.ShowDebug {
+		data.Debug = data.Data
+	}
 	return data
 }
 
-func CustomError(data *Data) *Data {
+func Custom(data *Data) *Data {
 	if data.HttpCode == 0 {
 		data.HttpCode = http.StatusBadRequest
 	}
-	if data.Msg == "" {
-		data.Msg = string(errs.UnDefinitionError)
+	if data.Msg == nil {
+		data.Msg = errs.CutomError.Error()
 	}
-	HandleData(data)
-	return data
-}
-
-var Debug = false
-
-type DebugRecordInterface interface {
-	Record(data *Data)
-}
-type DebugRecord func(data *Data)
-
-func (this DebugRecord) Record(data *Data) {
-	this(data)
-}
-
-var DebugRecordEngine DebugRecordInterface
-
-func HandleData(data *Data) {
-	if DebugRecordEngine != nil {
-		DebugRecordEngine.Record(data)
-	}
-
 	if data.ShowDebug {
-		return
+		data.Debug = data.Data
 	}
-	if Debug {
-		return
-	}
-
-	data.Debug = nil
-	return
+	return data
 }

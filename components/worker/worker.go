@@ -16,7 +16,7 @@ func newWorker(workerPool chan chan Job) *worker {
 	}
 }
 
-func (this *worker) start() {
+func (this *worker) start(i int) {
 	go func() {
 		for {
 			this.workerPool <- this.jobChannel
@@ -33,7 +33,6 @@ func (this *worker) start() {
 						_ = job.Run()
 					}()
 				}
-
 			case <-this.quit:
 				return
 			}

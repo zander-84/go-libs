@@ -12,9 +12,9 @@ type Field struct {
 	TraceId   string                 `json:"trace_id"`
 	Level     string                 `json:"level"`
 	Msg       string                 `json:"msg"`
-	From      string                 `json:"from"`
+	From      string                 `json:"from"` // 错误来源
 	Ts        string                 `json:"ts"`
-	Belong    string                 `json:"belong"` //
+	Belong    string                 `json:"belong"` // 接口分类（项目来源）
 	SubFields map[string]interface{} `json:"sub_fields"`
 }
 

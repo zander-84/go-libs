@@ -11,8 +11,8 @@ type Mysql interface {
 }
 
 type BasicModel struct {
-	DisplayFields []string `json:"-" gorm:"-"`
-	IsCache       bool     `json:"-" gorm:"-"`
+	DisplayFields []string `json:"" gorm:"-"`
+	IsFullModel   bool     `json:"" gorm:"-"`
 }
 
 func (this *BasicModel) MarshalJSON() ([]byte, error) {

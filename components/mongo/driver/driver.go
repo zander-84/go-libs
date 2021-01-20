@@ -39,7 +39,8 @@ func (this *Mongo) Start() error {
 	defer this.lock.Unlock()
 
 	atomic.AddInt64(&this.once, 1)
-	if this.once != 1 {
+	if atomic.LoadInt64(&this.once) != 1 {
+		atomic.StoreInt64(&this.once, 2)
 		return this.err
 	}
 
