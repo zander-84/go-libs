@@ -19,7 +19,7 @@ type Unique struct {
 	lastTime    int64 // 上次更新时间
 }
 
-// 适合吞吐在 100w之下 qps服务
+// NewUnique 适合吞吐在 100w之下 qps服务
 func NewUnique(prefix string, machine string, joinSymbol string, timeZone string) *Unique {
 	u := new(Unique)
 	u.joinSymbol = joinSymbol
