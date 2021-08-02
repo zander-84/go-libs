@@ -1,6 +1,8 @@
 package zlog
 
-import "github.com/zander-84/go-libs/common"
+import (
+	"github.com/zander-84/go-libs/think"
+)
 
 type Conf struct {
 	Level       string //{debug info warn error panic fatal}
@@ -49,7 +51,7 @@ func (c *Conf) SetDefaultBasic() {
 	}
 
 	if c.TimeZone == "" {
-		c.TimeZone = common.DefaultTimeZone
+		c.TimeZone = think.DefaultTimeZone
 	}
 }
 
