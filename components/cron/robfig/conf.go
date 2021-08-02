@@ -1,6 +1,8 @@
 package robfig
 
-import "github.com/zander-84/go-libs/common"
+import (
+	"github.com/zander-84/go-libs/think"
+)
 
 type Conf struct {
 	TimeZone string
@@ -13,6 +15,6 @@ func (c *Conf) SetDefault() Conf {
 
 func (c *Conf) SetDefaultBasic() {
 	if c.TimeZone == "" {
-		c.TimeZone = common.DefaultTimeZone
+		c.TimeZone = think.DefaultTimeZone
 	}
 }

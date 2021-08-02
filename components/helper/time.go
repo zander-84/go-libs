@@ -1,29 +1,33 @@
 package helper
 
 import (
-	"github.com/zander-84/go-libs/common"
+	"github.com/zander-84/go-libs/think"
 	"log"
 	"time"
 )
 
 type Time struct {
 	location *time.Location
+	timeZone string
 }
 
 //"2006-01-02 15:04:05"
 func NewTime(timeZone string) *Time {
 	this := new(Time)
 	if timeZone == "" {
-		timeZone = common.DefaultTimeZone
+		timeZone = think.DefaultTimeZone
 	}
 	var err error
 	this.location, err = time.LoadLocation(timeZone)
 	if err != nil {
 		log.Fatal("err timeZone: ", timeZone)
 	}
+	this.timeZone = timeZone
 	return this
 }
-
+func (t *Time) TimeZone() string {
+	return t.timeZone
+}
 func (t *Time) Location() *time.Location {
 	return t.location
 }

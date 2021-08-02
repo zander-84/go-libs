@@ -12,7 +12,7 @@ func (c *Conf) SetDefault() Conf {
 
 func (c *Conf) SetDefaultBasic() {
 	if c.Expiration == 0 {
-		c.Expiration = 5
+		c.Expiration = -1
 	}
 	if c.CleanupInterval == 0 {
 		c.Expiration = 10

@@ -1,59 +1,100 @@
 package helper
 
 import (
-	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
-	"math"
-	"math/big"
-	mathrand "math/rand"
-	"strings"
+	"math/rand"
 	"sync"
 	"sync/atomic"
 	"time"
 )
 
-var _id uint64
-var _start = time.Now().Format("060102150405")
-var _uniqueLock sync.Mutex
-var Prefix string
-
-func UniqueID() string {
-	return fmt.Sprintf("%s%d%s", Prefix, atomic.AddUint64(&_id, 1), _start)
+type Unique struct {
+	incrementID uint64 // 自增ID
+	joinSymbol  string // 连接符
+	lock        sync.Mutex
+	prefixVal   string //前缀加机器码
+	location    *time.Location
+	lastTime    int64 // 上次更新时间
 }
 
-func Rand(count int, raw bool) string {
-	maxTry := 5
-	var err error
-	var res int64
+// 适合吞吐在 100w之下 qps服务
+func NewUnique(prefix string, machine string, joinSymbol string, timeZone string) *Unique {
+	u := new(Unique)
+	u.joinSymbol = joinSymbol
+	if prefix != "" {
+		u.prefixVal = u.prefixVal + prefix + u.joinSymbol
+	}
+	if machine != "" {
+		u.prefixVal = u.prefixVal + machine + u.joinSymbol
+	}
 
-	for i := 0; i < maxTry; i++ {
-		if raw {
-			res, err = _rand1(int64(math.Pow10(count)))
-			if err == nil {
-				return fmt.Sprintf("%0"+fmt.Sprintf("%d", count)+"d", res)
+	if timeZone == "" {
+		timeZone = "Asia/Shanghai"
+	}
+	u.location, _ = time.LoadLocation(timeZone)
+	rand.Seed(time.Now().UnixNano())
+	return u
+}
+
+func (u *Unique) IDWithTag(tag string) string {
+	u.lock.Lock()
+	currentTime := u.now()
+	d := atomic.AddUint64(&u.incrementID, 1)
+	if atomic.LoadInt64(&u.lastTime) == 0 {
+		atomic.StoreInt64(&u.lastTime, currentTime.Unix())
+	} else {
+		if d > 999999 {
+			atomic.StoreUint64(&u.incrementID, 0)
+			d = atomic.AddUint64(&u.incrementID, 1)
+			if u.lastTime == currentTime.Unix() {
+				time.Sleep(1001 * time.Millisecond) //防止一秒破百万造成全局不唯一
+				currentTime = u.now()
 			}
-		} else {
-			res, err = _rand1(int64(math.Pow10(count)) - int64(math.Pow10(count-1)))
-			if err == nil {
-				res = res + int64(math.Pow10(count-1))
-				return fmt.Sprintf("%0"+fmt.Sprintf("%d", count)+"d", res)
-			}
+			atomic.StoreInt64(&u.lastTime, currentTime.Unix())
 		}
 	}
+	u.lock.Unlock()
 
-	return _rand2(count)
-}
-
-func _rand1(max int64) (int64, error) {
-	result, err := rand.Int(rand.Reader, big.NewInt(max))
-	return result.Int64(), err
-}
-
-func _rand2(count int) string {
-	nums := make([]string, 0)
-	for i := 0; i < count; i++ {
-		mathrand.Seed(time.Now().UnixNano())
-		nums = append(nums, fmt.Sprintf("%d", mathrand.Intn(10)))
+	if tag != "" {
+		return u.prefixVal + tag + u.joinSymbol + fmt.Sprintf("%04d", rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
+	} else {
+		return u.prefixVal + fmt.Sprintf("%04d", rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
 	}
-	return strings.Join(nums, "")
+}
+
+// 固定长度 LF-A-4165-000001-210509180953
+func (u *Unique) ID() string {
+	return u.IDWithTag("")
+}
+
+func (u *Unique) FreeIDWithTag(tag string) string {
+	d := atomic.AddUint64(&u.incrementID, 1)
+	if tag != "" {
+		return u.prefixVal + tag + u.joinSymbol + fmt.Sprintf("%04d", rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%04d", d) + u.joinSymbol + time.Now().In(u.location).Format("060102150405")
+	} else {
+		return u.prefixVal + fmt.Sprintf("%04d", rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%04d", d) + u.joinSymbol + time.Now().In(u.location).Format("060102150405")
+	}
+}
+
+// 不限长度
+func (u *Unique) FreeID() string {
+	return u.FreeIDWithTag("")
+}
+
+func (u *Unique) now() time.Time {
+	return time.Now().In(u.location)
+}
+
+// 不限长度
+func (u *Unique) Md5ID() string {
+	data := sha256.Sum256([]byte(u.FreeIDWithTag("")))
+	return hex.EncodeToString(data[:])
+}
+
+// 不限长度
+func (u *Unique) Md5TagID(tag string) string {
+	data := sha256.Sum256([]byte(u.FreeIDWithTag(tag)))
+	return hex.EncodeToString(data[:])
 }

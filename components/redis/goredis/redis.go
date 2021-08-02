@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/go-redis/redis/v8"
 	"github.com/golang/groupcache/singleflight"
-	"github.com/zander-84/go-libs/components/errs"
+	"github.com/zander-84/go-libs/think"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -28,32 +28,29 @@ func NewRdb(conf Conf) *Rdb {
 
 func (this *Rdb) init(conf Conf) {
 	this.conf = conf.SetDefault()
-	this.err = errs.UninitializedError
+	this.err = think.ErrInstanceUnDone
 	this.context = context.Background()
 	this.engine = nil
-	this.once = 0
+	atomic.StoreInt64(&this.once, 0)
 }
 
 func (this *Rdb) Start() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
-	atomic.AddInt64(&this.once, 1)
-	if atomic.LoadInt64(&this.once) != 1 {
-		atomic.StoreInt64(&this.once, 2)
-		return this.err
+	if atomic.CompareAndSwapInt64(&this.once,0,1) {
+		this.engine = redis.NewClient(&redis.Options{
+			Addr:         this.conf.Addr,
+			Password:     this.conf.Password,
+			DB:           this.conf.Db,
+			PoolSize:     this.conf.PoolSize,
+			IdleTimeout:  time.Duration(this.conf.IdleTimeout) * time.Second,
+			MinIdleConns: this.conf.MinIdle,
+		})
+
+		this.err = this.engine.Ping(context.Background()).Err()
 	}
 
-	this.engine = redis.NewClient(&redis.Options{
-		Addr:         this.conf.Addr,
-		Password:     this.conf.Password,
-		DB:           this.conf.Db,
-		PoolSize:     this.conf.PoolSize,
-		IdleTimeout:  time.Duration(this.conf.IdleTimeout) * time.Second,
-		MinIdleConns: this.conf.MinIdle,
-	})
-
-	this.err = this.engine.Ping(context.Background()).Err()
 	return this.err
 }
 
@@ -64,8 +61,8 @@ func (this *Rdb) Stop() {
 		_ = this.engine.Close()
 	}
 	this.engine = nil
-	this.once = 0
-	this.err = errs.UninitializedError
+	atomic.StoreInt64(&this.once, 0)
+	this.err = think.ErrInstanceUnDone
 }
 
 func (this *Rdb) Restart(conf Conf) error {

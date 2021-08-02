@@ -17,3 +17,19 @@
 {"level":"error","ts":"2020-11-15 21:20:04","msg":"Error","trace_id":"ssssss","from":"bbb","belong":""}
 {"level":"error","ts":"2020-11-15 21:20:04","msg":"Error2"}
 {"level":"error","ts":"2020-11-15 21:20:04","msg":"Error3","trace_id":"","from":"","belong":""}
+2021/04/27 21:19:21.336765 zap.go:97: starting log...
+{"level":"info","ts":"2021-04-27 21:19:21","msg":"Info","k1":"v1","k2":"v2"}
+{"level":"error","ts":"2021-04-27 21:19:21","msg":"Error2"}
+{"level":"error","ts":"2021-04-27 21:19:21","msg":"Error3","":null}
+2021/04/27 21:22:55.960864 zap.go:97: starting log...
+{"level":"info","ts":"2021-04-27 21:22:55","msg":"Info","k1":"v1","msg":"v2"}
+{"level":"error","ts":"2021-04-27 21:22:55","msg":"Error2"}
+{"level":"error","ts":"2021-04-27 21:22:55","msg":"Error3","":null}
+2021/04/27 21:37:21.613120 zap.go:97: starting log...
+{"level":"info","ts":"2021-04-27 21:37:21","msg":"Info","k1":"v1"}
+{"level":"error","ts":"2021-04-27 21:37:21","msg":"Error2"}
+{"level":"error","ts":"2021-04-27 21:37:21","msg":"Error3"}
+2021/04/27 21:37:41.696838 zap.go:97: starting log...
+{"level":"info","ts":"2021-04-27 21:37:41","msg":"Info","k2":"v2","k1":"v1"}
+{"level":"error","ts":"2021-04-27 21:37:41","msg":"Error2"}
+{"level":"error","ts":"2021-04-27 21:37:41","msg":"Error3"}

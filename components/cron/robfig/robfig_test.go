@@ -17,7 +17,6 @@ func TestRobfig(t *testing.T) {
 	testAdd(t, c)
 	testRemove(t, c)
 	testAdd(t, c)
-	testRestart(t, c)
 
 	if err := c.StartJobs(); err != nil {
 		t.Fatal("StartJobs error ", err.Error())
@@ -61,12 +60,6 @@ func testRemove(t *testing.T, c *Robfig) {
 		t.Fatal("add error ", err.Error())
 	}
 	if err := c.RemoveJob("test2"); err != nil {
-		t.Fatal("add error ", err.Error())
-	}
-}
-
-func testRestart(t *testing.T, c *Robfig) {
-	if err := c.RestartJob("test1"); err != nil {
 		t.Fatal("add error ", err.Error())
 	}
 }

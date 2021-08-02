@@ -3,8 +3,8 @@ package robfig
 import (
 	"github.com/robfig/cron/v3"
 	cron2 "github.com/zander-84/go-libs/components/cron"
-	"github.com/zander-84/go-libs/components/errs"
 	"github.com/zander-84/go-libs/components/helper"
+	"github.com/zander-84/go-libs/think"
 	"sync"
 	"sync/atomic"
 )
@@ -28,24 +28,19 @@ func NewRobfig(conf Conf) *Robfig {
 func (this *Robfig) init(conf Conf) {
 	this.conf = conf.SetDefault()
 	this.time = helper.NewTime(this.conf.TimeZone)
-	this.err = errs.UninitializedError
+	this.err = think.ErrInstanceUnDone
 	this.jobs = make(map[string]*cron2.Job)
-	this.once = 0
+	atomic.StoreInt64(&this.once, 0)
 }
 
 func (this *Robfig) Start() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
-
-	atomic.AddInt64(&this.once, 1)
-	if atomic.LoadInt64(&this.once) != 1 {
-		atomic.StoreInt64(&this.once, 2)
-		return this.err
+	if atomic.CompareAndSwapInt64(&this.once, 0, 1) {
+		this.engine = cron.New(cron.WithLocation(this.time.Location()), cron.WithSeconds())
+		this.err = nil
 	}
-
-	this.engine = cron.New(cron.WithLocation(this.time.Location()), cron.WithSeconds())
-	this.err = nil
-	return nil
+	return this.err
 }
 
 func (this *Robfig) Stop() {
@@ -56,8 +51,8 @@ func (this *Robfig) Stop() {
 	}
 
 	this.engine = nil
-	this.once = 0
-	this.err = errs.UninitializedError
+    atomic.StoreInt64(&this.once, 0)
+	this.err = think.ErrInstanceUnDone
 	this.jobs = make(map[string]*cron2.Job)
 }
 

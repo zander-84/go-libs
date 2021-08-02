@@ -1,9 +1,10 @@
 package robfig
 
 import (
+	"errors"
 	"github.com/robfig/cron/v3"
 	cron2 "github.com/zander-84/go-libs/components/cron"
-	"github.com/zander-84/go-libs/components/errs"
+	"github.com/zander-84/go-libs/think"
 )
 
 var _ cron2.Crontab = (*Robfig)(nil)
@@ -12,7 +13,7 @@ func (this *Robfig) AddJob(job *cron2.Job) error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	if _, ok := this.jobs[job.ID]; ok {
-		return errs.IDExistError
+		return think.ErrRepeat(errors.New("ID 已经存在"))
 	}
 	// 添加job
 	id, err := this.engine.AddJob(job.Spec, job.Cmd)
@@ -23,7 +24,7 @@ func (this *Robfig) AddJob(job *cron2.Job) error {
 	return err
 }
 
-// 移除
+// RemoveJob 移除
 func (this *Robfig) RemoveJob(id string) error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
@@ -58,12 +59,3 @@ func (this *Robfig) StopJobs() error {
 
 }
 
-func (this *Robfig) RestartJob(id string) error {
-	if job, ok := this.jobs["id"]; ok {
-		if err := this.RemoveJob(id); err != nil {
-			return err
-		}
-		return this.AddJob(job)
-	}
-	return errs.IDError
-}

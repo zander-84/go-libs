@@ -1,6 +1,7 @@
 package cron
 
-/* Spec
+/*
+Job 描述
 Field name   | Mandatory? | Allowed values  | Allowed special characters
 ----------   | ---------- | --------------  | --------------------------
 Seconds      | Yes        | 0-59            | * / , -
@@ -28,8 +29,6 @@ type Crontab interface {
 	StartJobs() error
 
 	StopJobs() error
-
-	RestartJob(id string) error
 }
 
 type Cmd interface {
@@ -38,6 +37,7 @@ type Cmd interface {
 
 type CmdFunc func()
 
+//Run exit chan struct{}
 func (this CmdFunc) Run() {
 	this()
 }

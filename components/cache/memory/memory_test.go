@@ -20,7 +20,6 @@ func TestMemory(t *testing.T) {
 	testRdbStruct(t, memory)
 	testRdbExists(t, memory)
 	testRdbGetOrSet(t, memory)
-	testRdbGetOrSetFast(t, memory)
 	testRdbFlushDB(t, memory)
 
 }
@@ -28,42 +27,6 @@ func TestMemory(t *testing.T) {
 func testRdbFlushDB(t *testing.T, memory *Memory) {
 	if err := memory.FlushDB(context.Background()); err != nil {
 		t.Fatal("FlushDB  err: ", err.Error())
-	}
-}
-
-func testRdbGetOrSetFast(t *testing.T, memory *Memory) {
-	key := "GetOrSetFast"
-	val := "aaaa"
-	get := ""
-
-	get2, err := memory.GetOrSetFast(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
-		return val, nil
-	})
-	if err != nil {
-		t.Fatal("Exists  err: ", err.Error())
-	}
-
-	if get3, ok := get2.(string); ok {
-		if val != get3 {
-			t.Fatal("testRdbGetOrSetFast err: ", get2)
-		}
-	} else {
-		t.Fatal("testRdbGetOrSetFast err: ", get2)
-	}
-
-	get2, err = memory.GetOrSetFast(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
-		return "err", nil
-	})
-	if err != nil {
-		t.Fatal("Exists  err: ", err.Error())
-	}
-
-	if get3, ok := get2.(string); ok {
-		if val != get3 {
-			t.Fatal("testRdbGetOrSetFast err: ", get2)
-		}
-	} else {
-		t.Fatal("testRdbGetOrSetFast err: ", get2)
 	}
 }
 

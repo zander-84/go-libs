@@ -52,7 +52,21 @@ func TestGdb(t *testing.T) {
 	t.Log(product)
 	gdb.Engine().First(&product, "code = ?", "D42") // 查找 code 字段值为 D42 的记录
 	t.Log(product)
-
+	gdb.engine.Where("a=?", 1).Session(&gorm.Session{
+		DryRun:                   false,
+		PrepareStmt:              false,
+		NewDB:                    true,
+		SkipHooks:                false,
+		SkipDefaultTransaction:   false,
+		DisableNestedTransaction: false,
+		AllowGlobalUpdate:        false,
+		FullSaveAssociations:     false,
+		QueryFields:              false,
+		Context:                  nil,
+		Logger:                   nil,
+		NowFunc:                  nil,
+		CreateBatchSize:          0,
+	})
 	if err := gdb.Engine().Model(&product).Update("Price", 200).Error; err != nil {
 		t.Fatal(err.Error())
 	}

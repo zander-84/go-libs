@@ -35,20 +35,20 @@ func (c *Conv) ShouldStoI64(s string) int64 {
 }
 
 // 数字 转 字符串
-func (c *Conv) ShouldItos(i int) string {
+func (c *Conv) ShouldItoS(i int) string {
 	return fmt.Sprintf("%d", i)
 }
 
-func (c *Conv) ShouldI32tos(i int32) string {
+func (c *Conv) ShouldI32toS(i int32) string {
 	return fmt.Sprintf("%d", i)
 }
 
-func (c *Conv) ShouldI64tos(i int64) string {
+func (c *Conv) ShouldI64toS(i int64) string {
 	return fmt.Sprintf("%d", i)
 }
 
 // 字符串 转 浮点
-func (c *Conv) ShouldStof(s string) float64 {
+func (c *Conv) ShouldStoF(s string) float64 {
 	n, err := strconv.ParseFloat(s, 64)
 	if err != nil {
 		return 0
@@ -57,7 +57,7 @@ func (c *Conv) ShouldStof(s string) float64 {
 }
 
 // 浮点 转 字符串
-func (c *Conv) ShouldFtos(f float64) string {
+func (c *Conv) ShouldFtoS(f float64) string {
 	return fmt.Sprintf("%f", f)
 }
 

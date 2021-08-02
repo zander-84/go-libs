@@ -2,7 +2,7 @@ package worker
 
 import (
 	"errors"
-	"github.com/zander-84/go-libs/components/errs"
+	"github.com/zander-84/go-libs/think"
 	"sync"
 	"sync/atomic"
 )
@@ -24,27 +24,25 @@ func NewDispatcher(conf Conf) *Dispatcher {
 	this.init(conf)
 	return this
 }
+
 func (this *Dispatcher) init(conf Conf) {
 	this.conf = conf.SetDefault()
-	this.once = 0
-	this.err = errs.UninitializedError
+	atomic.StoreInt64(&this.once, 0)
+	this.err = think.ErrInstanceUnDone
 }
 
 func (this *Dispatcher) Start() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
-	atomic.AddInt64(&this.once, 1)
-	if atomic.LoadInt64(&this.once) != 1 {
-		atomic.StoreInt64(&this.once, 2)
-		return this.err
+	if atomic.CompareAndSwapInt64(&this.once, 0, 1) {
+		this.worker = make([]*worker, this.conf.MaxWorkers)
+		this.workerPool = make(chan chan Job, this.conf.MaxWorkers)
+		this.jobChannel = make(chan Job, this.conf.MaxQueues)
+		this.run()
+		this.err = nil
 	}
 
-	this.worker = make([]*worker, this.conf.MaxWorkers)
-	this.workerPool = make(chan chan Job, this.conf.MaxWorkers)
-	this.jobChannel = make(chan Job, this.conf.MaxQueues)
-	this.run()
-	this.err = nil
 	return this.err
 }
 
@@ -54,7 +52,7 @@ func (this *Dispatcher) Stop() {
 	for _, w := range this.worker {
 		w.stop()
 	}
-	this.once = 0
+	atomic.StoreInt64(&this.once, 0)
 }
 
 func (this *Dispatcher) run() {

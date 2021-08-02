@@ -3,7 +3,7 @@ package memory
 import (
 	"github.com/golang/groupcache/singleflight"
 	"github.com/patrickmn/go-cache"
-	"github.com/zander-84/go-libs/components/errs"
+	"github.com/zander-84/go-libs/think"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -26,8 +26,8 @@ func NewMemory(conf Conf) *Memory {
 
 func (this *Memory) init(conf Conf) {
 	this.conf = conf.SetDefault()
-	this.err = errs.UninitializedError
-	this.once = 0
+	this.err = think.ErrInstanceUnDone
+	atomic.StoreInt64(&this.once, 0)
 	this.engine = nil
 }
 
@@ -35,23 +35,21 @@ func (this *Memory) Start() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
-	atomic.AddInt64(&this.once, 1)
-	if atomic.LoadInt64(&this.once) != 1 {
-		atomic.StoreInt64(&this.once, 2)
-		return this.err
+	if atomic.CompareAndSwapInt64(&this.once,0,1){
+		this.engine = cache.New(time.Duration(this.conf.Expiration)*time.Minute, time.Duration(this.conf.CleanupInterval)*time.Minute)
+		this.err = nil
 	}
 
-	this.engine = cache.New(time.Duration(this.conf.Expiration)*time.Minute, time.Duration(this.conf.CleanupInterval)*time.Minute)
-	this.err = nil
-	return nil
+	return this.err
 }
+
 func (this *Memory) Stop() {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
 	this.engine = nil
-	this.once = 0
-	this.err = errs.UninitializedError
+	atomic.StoreInt64(&this.once, 0)
+	this.err = think.ErrInstanceUnDone
 }
 
 func (this *Memory) Restart(conf Conf) error {

@@ -1,7 +1,6 @@
 package zlog
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/zander-84/go-libs/components/logger"
 	"io"
@@ -35,20 +34,14 @@ func TestZap(t *testing.T) {
 		},
 	}, []io.Writer{Writer(func(p []byte) (n int, err error) {
 		fmt.Println("aaa: ", string(p))
-
-		var data logger.Field
-		if err := json.Unmarshal(p, &data); err != nil {
-			return len(p), err
-		}
 		return 0, nil
 	})})
 	if err := zlog.Start(); err != nil {
 		t.Fatal("start log err: ", err.Error())
 	}
 
-	zlog.Debug("debug", logger.Field{From: "aaa"})
-	zlog.Info("Info", logger.Field{From: "bbb", TraceId: "ssssss", SubFields: map[string]interface{}{"ip": "127.0.0.1", "age": 18}})
-	zlog.Error("Error", logger.Field{From: "aaa"}, logger.Field{From: "bbb", TraceId: "ssssss"})
+	zlog.Debug("debug", logger.Field{"k1": "v1"})
+	zlog.Info("Info", logger.Field{"k1": "v1", "k2": "v2"})
 	zlog.Error("Error2")
-	zlog.Error("Error3", logger.Field{})
+	zlog.Error("Error3")
 }
