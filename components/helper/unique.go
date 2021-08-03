@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/zander-84/go-libs/think"
 	"math/rand"
 	"sync"
 	"sync/atomic"
@@ -31,7 +32,7 @@ func NewUnique(prefix string, machine string, joinSymbol string, timeZone string
 	}
 
 	if timeZone == "" {
-		timeZone = "Asia/Shanghai"
+		timeZone = think.DefaultTimeZone
 	}
 	u.location, _ = time.LoadLocation(timeZone)
 	rand.Seed(time.Now().UnixNano())
