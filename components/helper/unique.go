@@ -12,12 +12,13 @@ import (
 )
 
 type Unique struct {
-	incrementID uint64 // 自增ID
-	joinSymbol  string // 连接符
-	lock        sync.Mutex
-	prefixVal   string //前缀加机器码
-	location    *time.Location
-	lastTime    int64 // 上次更新时间
+	incrementID     uint64 // 自增ID
+	incrementTimeID uint64 // 自增ID
+	joinSymbol      string // 连接符
+	lock            sync.Mutex
+	prefixVal       string //前缀加机器码
+	location        *time.Location
+	lastTime        int64 // 上次更新时间
 }
 
 // NewUnique 适合吞吐在 100w之下 qps服务
@@ -49,19 +50,25 @@ func (u *Unique) IDWithTag(tag string) string {
 		if d > 999999 {
 			atomic.StoreUint64(&u.incrementID, 0)
 			d = atomic.AddUint64(&u.incrementID, 1)
-			if u.lastTime == currentTime.Unix() {
+			if u.lastTime >= currentTime.Unix() {
 				time.Sleep(1001 * time.Millisecond) //防止一秒破百万造成全局不唯一
 				currentTime = u.now()
 			}
+			if u.lastTime > currentTime.Unix() { // 时间回滚下
+				if atomic.AddUint64(&u.incrementTimeID, 1) > 9 {
+					atomic.StoreUint64(&u.incrementTimeID, 0)
+				}
+			}
+
 			atomic.StoreInt64(&u.lastTime, currentTime.Unix())
 		}
 	}
 	u.lock.Unlock()
 
 	if tag != "" {
-		return u.prefixVal + tag + u.joinSymbol + fmt.Sprintf("%04d", rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
+		return u.prefixVal + tag + u.joinSymbol + fmt.Sprintf("%d%04d", u.incrementTimeID, rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
 	} else {
-		return u.prefixVal + fmt.Sprintf("%04d", rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
+		return u.prefixVal + fmt.Sprintf("%d%04d", u.incrementTimeID, rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
 	}
 }
 
