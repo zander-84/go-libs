@@ -21,7 +21,7 @@ type Unique struct {
 	lastTime        int64 // 上次更新时间
 }
 
-// NewUnique 适合吞吐在 100w之下 qps服务
+// NewUnique 适合吞吐在 100w之下 qps服务；  重复不可避免，还得通过其它持久化方式优化
 func NewUnique(prefix string, machine string, joinSymbol string, timeZone string) *Unique {
 	u := new(Unique)
 	u.joinSymbol = joinSymbol
@@ -36,6 +36,7 @@ func NewUnique(prefix string, machine string, joinSymbol string, timeZone string
 		timeZone = think.DefaultTimeZone
 	}
 	u.location, _ = time.LoadLocation(timeZone)
+	u.incrementTimeID = uint64(rand.Intn(100))
 	rand.Seed(time.Now().UnixNano())
 	return u
 }
@@ -56,26 +57,24 @@ func (u *Unique) IDWithTag(tag string) string {
 				currentTime = u.now()
 			}
 			if u.lastTime > currentTime.Unix() { // 时间回滚下
-				if atomic.AddUint64(&u.incrementTimeID, 1) > 9 {
+				if atomic.AddUint64(&u.incrementTimeID, 1) > 99 {
 					atomic.StoreUint64(&u.incrementTimeID, 0)
 				}
 				dt = atomic.LoadUint64(&u.incrementTimeID)
-
 			}
-
 			atomic.StoreInt64(&u.lastTime, currentTime.Unix())
 		}
 	}
 	u.lock.Unlock()
 
 	if tag != "" {
-		return u.prefixVal + tag + u.joinSymbol + fmt.Sprintf("%d%04d", dt, rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
+		return u.prefixVal + tag + u.joinSymbol + fmt.Sprintf("%d%04d", dt, rand.Intn(10000)) + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
 	} else {
-		return u.prefixVal + fmt.Sprintf("%d%04d", dt, rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
+		return u.prefixVal + fmt.Sprintf("%d%04d", dt, rand.Intn(10000)) + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
 	}
 }
 
-// 固定长度 LF-A-4165-000001-210509180953
+// ID 固定长度 LF-A-814707000013-210803222335
 func (u *Unique) ID() string {
 	return u.IDWithTag("")
 }
@@ -83,13 +82,13 @@ func (u *Unique) ID() string {
 func (u *Unique) FreeIDWithTag(tag string) string {
 	d := atomic.AddUint64(&u.incrementID, 1)
 	if tag != "" {
-		return u.prefixVal + tag + u.joinSymbol + fmt.Sprintf("%04d", rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%04d", d) + u.joinSymbol + time.Now().In(u.location).Format("060102150405")
+		return u.prefixVal + tag + u.joinSymbol + fmt.Sprintf("%d%04d", atomic.LoadUint64(&u.incrementTimeID), rand.Intn(10000)) + fmt.Sprintf("%04d", d) + u.joinSymbol + time.Now().In(u.location).Format("060102150405")
 	} else {
-		return u.prefixVal + fmt.Sprintf("%04d", rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%04d", d) + u.joinSymbol + time.Now().In(u.location).Format("060102150405")
+		return u.prefixVal + fmt.Sprintf("%d%04d", atomic.LoadUint64(&u.incrementTimeID), rand.Intn(10000)) + fmt.Sprintf("%04d", d) + u.joinSymbol + time.Now().In(u.location).Format("060102150405")
 	}
 }
 
-// 不限长度
+// FreeID 不限长度
 func (u *Unique) FreeID() string {
 	return u.FreeIDWithTag("")
 }
