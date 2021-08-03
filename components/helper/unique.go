@@ -44,6 +44,7 @@ func (u *Unique) IDWithTag(tag string) string {
 	u.lock.Lock()
 	currentTime := u.now()
 	d := atomic.AddUint64(&u.incrementID, 1)
+	dt := atomic.LoadUint64(&u.incrementTimeID)
 	if atomic.LoadInt64(&u.lastTime) == 0 {
 		atomic.StoreInt64(&u.lastTime, currentTime.Unix())
 	} else {
@@ -58,6 +59,8 @@ func (u *Unique) IDWithTag(tag string) string {
 				if atomic.AddUint64(&u.incrementTimeID, 1) > 9 {
 					atomic.StoreUint64(&u.incrementTimeID, 0)
 				}
+				dt = atomic.LoadUint64(&u.incrementTimeID)
+
 			}
 
 			atomic.StoreInt64(&u.lastTime, currentTime.Unix())
@@ -66,9 +69,9 @@ func (u *Unique) IDWithTag(tag string) string {
 	u.lock.Unlock()
 
 	if tag != "" {
-		return u.prefixVal + tag + u.joinSymbol + fmt.Sprintf("%d%04d", u.incrementTimeID, rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
+		return u.prefixVal + tag + u.joinSymbol + fmt.Sprintf("%d%04d", dt, rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
 	} else {
-		return u.prefixVal + fmt.Sprintf("%d%04d", u.incrementTimeID, rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
+		return u.prefixVal + fmt.Sprintf("%d%04d", dt, rand.Intn(10000)) + u.joinSymbol + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
 	}
 }
 
