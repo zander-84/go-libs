@@ -2,12 +2,9 @@ package worker
 
 import (
 	"context"
-	"errors"
+	"github.com/zander-84/go-libs/think"
 	"sync"
 )
-
-var ErrUndone = errors.New("event undone")
-var ErrRecordNotFound = errors.New("event not found")
 
 type Jobs struct {
 	dataSlice []*Job
@@ -35,7 +32,7 @@ func (es *Jobs) GetByTitle(title string) (*Job, error) {
 	if ok {
 		return e, nil
 	} else {
-		return nil, ErrRecordNotFound
+		return nil, think.ErrInstanceRecordNotFound
 	}
 }
 
@@ -54,7 +51,7 @@ func newJob(ctx context.Context, title string, input interface{}, handler func(i
 	e.title = title
 	e.handler = handler
 	e.input = input
-	e.error = ErrUndone
+	e.error = think.ErrInstanceUnDone
 	return e
 }
 func (e *Job) Title() string {
