@@ -4,139 +4,19 @@ import (
 	"errors"
 )
 
-type Err error
-
-// ErrRecordNotFound 数据未找到
-type ErrRecordNotFound Err
-
-var ErrInstanceRecordNotFound = ErrRecordNotFound(errors.New("record not found"))
-
-func IsErrRecordNotFound(err error) bool {
-	_, ok := err.(ErrRecordNotFound)
-	return ok
-}
-
-// ErrRepeat 重复操作
-type ErrRepeat Err
-
-// ErrUnDone 未完成
-type ErrUnDone Err
-
-var ErrInstanceUnDone = ErrUnDone(errors.New("err undone"))
-
-// ErrType 错误类型
-type ErrType Err
-
-// ErrIgnore 忽略错误
-type ErrIgnore Err
-
-// ErrUnknown 未知错误
-type ErrUnknown Err
-
-// ErrTooManyRequest 请求过多
-type ErrTooManyRequest Err
-
-// ErrForbidden 禁止访问
-type ErrForbidden Err
-
-// ErrSign 签名错误
-type ErrSign Err
-
-// ErrUnauthorized 未认证
-type ErrUnauthorized Err
-
-// ErrSystemSpace 系统空间
-type ErrSystemSpace Err
-
-// ErrAlter 简单错误 提示
-type ErrAlter Err
-
-// ErrParam 参数错误
-type ErrParam Err
-
-// ErrTimeOut 参数错误
-type ErrTimeOut Err
-
-// ErrBiz 业务错误
-type ErrBiz Err
-
-func ToErrBiz(subCode int, err error) error {
-	return &errWithBiz{
-		bizCode: subCode,
-		cause:   err,
-	}
-}
-
-func NewErrBiz(subCode int, errMsg string) error {
-	return &errWithBiz{
-		bizCode: subCode,
-		cause:   errors.New(errMsg),
-	}
-}
-func IsErrBiz(err error) bool {
-	_, ok := err.(ErrBiz)
-	return ok
-}
-func Err2Code(err error) Code {
-	c, _ := errExplain(err)
-	return c
-}
-
-func ErrString(err error) string {
-	_, s := errExplain(err)
-	return s
-}
-func errExplain(err error) (Code, string) {
-	switch err.(type) {
-	case ErrRecordNotFound:
-		return CodeRecordNotFound, "ErrRecordNotFound"
-	case ErrUnDone:
-		return CodeUnDone, "ErrUnDone"
-	case ErrIgnore:
-		return CodeIgnore, "ErrIgnore"
-	case ErrUnknown:
-		return CodeUndefined, "ErrUnknown"
-	case ErrTooManyRequest:
-		return CodeTooManyRequests, "ErrTooManyRequest"
-	case ErrForbidden:
-		return CodeForbidden, "ErrForbidden"
-	case ErrSign:
-		return CodeSignError, "ErrSign"
-	case ErrUnauthorized:
-		return CodeUnauthorized, "ErrUnauthorized"
-	case ErrSystemSpace:
-		return CodeSystemSpaceError, "ErrSystemSpace"
-	case ErrAlter:
-		return CodeAlterError, "ErrAlter"
-	case ErrType:
-		return CodeTypeError, "ErrType"
-	case ErrParam:
-		return CodeParamError, "ErrParam"
-	case ErrTimeOut:
-		return CodeTimeOut, "ErrTimeOut"
-	case ErrBiz:
-		return CodeBizError, "ErrBiz"
-	case ErrRepeat:
-		return CodeRepeat, "ErrRepeat"
-	default:
-		return CodeUndefined, "error"
-	}
-}
-
-type errWithBiz struct {
+type Error struct {
+	code    Code
 	bizCode int
-	cause   error
+	err     error
 }
-
 type bizCode interface {
 	BizCode() int
 }
 
-func (w *errWithBiz) Error() string { return w.cause.Error() }
-func (w *errWithBiz) BizCode() int  { return w.bizCode }
+func (e *Error) BizCode() int { return e.bizCode }
 
 // Unwrap provides compatibility for Go 1.13 error chains.
-func (w *errWithBiz) Unwrap() error { return w.cause }
+func (e *Error) Unwrap() error { return e.err }
 
 func BizCode(err error) int {
 	if err == nil {
@@ -147,4 +27,129 @@ func BizCode(err error) int {
 		return 0
 	}
 	return wb.BizCode()
+}
+func (e *Error) Error() string {
+	return e.err.Error()
+}
+
+// ErrRecordNotFound 数据未找到
+func ErrRecordNotFound(err error) error {
+	return &Error{code: CodeRecordNotFound, err: err}
+}
+
+var ErrInstanceRecordNotFound = ErrRecordNotFound(errors.New("record not found"))
+
+func IsErrRecordNotFound(err error) bool {
+	e, ok := err.(*Error)
+	if ok == false {
+		return false
+	}
+	if e.code == CodeRecordNotFound {
+		return true
+	}
+	return false
+}
+
+// ErrRepeat 重复操作
+func ErrRepeat(err error) error {
+	return &Error{code: CodeRepeat, err: err}
+}
+
+// ErrUnDone 未完成
+func ErrUnDone(err error) error {
+	return &Error{code: CodeUnDone, err: err}
+}
+
+var ErrInstanceUnDone = ErrUnDone(errors.New("err undone"))
+
+// ErrType 错误类型
+func ErrType(err error) error {
+	return &Error{code: CodeTypeError, err: err}
+}
+
+// ErrIgnore 忽略错误
+func ErrIgnore(err error) error {
+	return &Error{code: CodeIgnore, err: err}
+}
+
+// ErrUnknown 未知错误
+func ErrUnknown(err error) error {
+	return &Error{code: CodeUndefined, err: err}
+}
+
+// ErrTooManyRequest 请求过多
+func ErrTooManyRequest(err error) error {
+	return &Error{code: CodeTooManyRequests, err: err}
+}
+
+// ErrForbidden 禁止访问
+func ErrForbidden(err error) error {
+	return &Error{code: CodeForbidden, err: err}
+}
+
+// ErrSign 签名错误
+func ErrSign(err error) error {
+	return &Error{code: CodeSignError, err: err}
+}
+
+// ErrUnauthorized 未认证
+func ErrUnauthorized(err error) error {
+	return &Error{code: CodeUnauthorized, err: err}
+}
+
+// ErrSystemSpace 系统空间
+func ErrSystemSpace(err error) error {
+	return &Error{code: CodeSystemSpaceError, err: err}
+}
+
+// ErrAlter 简单错误 提示
+func ErrAlter(err error) error {
+	return &Error{code: CodeAlterError, err: err}
+}
+
+// ErrParam 参数错误
+func ErrParam(err error) error {
+	return &Error{code: CodeParamError, err: err}
+}
+
+// ErrTimeOut 参数错误
+func ErrTimeOut(err error) error {
+	return &Error{code: CodeTimeOut, err: err}
+}
+
+// ErrBiz 业务错误
+func ErrBiz(err error) error {
+	return &Error{code: CodeBizError, err: err}
+}
+func ToErrBiz(subCode int, err error) error {
+	return &Error{
+		code:    CodeBizError,
+		bizCode: subCode,
+		err:     err,
+	}
+}
+
+func NewErrBiz(subCode int, errMsg string) error {
+	return &Error{
+		code:    CodeBizError,
+		bizCode: subCode,
+		err:     errors.New(errMsg),
+	}
+}
+func IsErrBiz(err error) bool {
+	e, ok := err.(*Error)
+	if ok == false {
+		return false
+	}
+	if e.code == CodeBizError {
+		return true
+	}
+	return false
+}
+func Err2Code(err error) Code {
+	e, ok := err.(*Error)
+	if ok == false {
+		return CodeUndefined
+	}
+	return e.code
 }
