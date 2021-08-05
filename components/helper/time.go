@@ -165,7 +165,7 @@ func (t *Time) FormatDayHyphenFromTime(timer time.Time) string {
 	}
 	return timer.In(t.location).Format("2006-01-02")
 }
-func (t *Time) SpiltTimes(startAt time.Time, endAt time.Time, interval time.Duration) ([]time.Time, error) {
+func (t *Time) IntervalSliceTimes(startAt time.Time, endAt time.Time, interval time.Duration) ([]time.Time, error) {
 	if startAt.IsZero() {
 		return nil, errors.New("起始时间不能为空")
 	}
@@ -195,8 +195,8 @@ func (t *Time) SpiltTimes(startAt time.Time, endAt time.Time, interval time.Dura
 	return timeSlice, nil
 }
 
-func (t *Time) SpiltTimesDeep(startAt time.Time, endAt time.Time, interval time.Duration) ([][2]time.Time, error) {
-	ts, err := t.SpiltTimes(startAt, endAt, interval)
+func (t *Time) IntervalArrayTimes(startAt time.Time, endAt time.Time, interval time.Duration) ([][2]time.Time, error) {
+	ts, err := t.IntervalSliceTimes(startAt, endAt, interval)
 	if err != nil {
 		return nil, err
 	}
