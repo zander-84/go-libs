@@ -11,7 +11,7 @@ type ResponseErr struct {
 	Data    interface{}
 }
 
-func NewResponseFromErr(err Err, debug bool) *ResponseErr {
+func NewResponseFromErr(err error, debug bool) *ResponseErr {
 
 	var r = ResponseErr{
 		Code:    Err2Code(err),
@@ -32,13 +32,13 @@ func NewResponseFromErr(err Err, debug bool) *ResponseErr {
 	return &r
 }
 
-func NewResponseBytesFromErr(err Err, debug bool) []byte {
+func NewResponseBytesFromErr(err error, debug bool) []byte {
 	return []byte(NewResponseStringFromErr(err, debug))
 }
 
 var errNilString = fmt.Sprintf("{Code:%d,Msg:%s,Data:%s}", CodeException, CodeException.ToString(), "")
 
-func NewResponseStringFromErr(err Err, debug bool) string {
+func NewResponseStringFromErr(err error, debug bool) string {
 	if err == nil {
 		return errNilString
 	}
