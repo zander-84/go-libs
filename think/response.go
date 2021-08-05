@@ -4,16 +4,16 @@ import "fmt"
 
 var ResponseDebug = false
 
-type ResponseErr struct {
+type ResponseError struct {
 	Code    Code
 	SubCode int `json:",omitempty"`
 	Msg     string
 	Data    interface{}
 }
 
-func NewResponseFromErr(err error, debug bool) *ResponseErr {
+func NewResponseFromErr(err error, debug bool) *ResponseError {
 
-	var r = ResponseErr{
+	var r = ResponseError{
 		Code:    Err2Code(err),
 		SubCode: 0,
 		Msg:     Err2Code(err).ToString(),
@@ -36,7 +36,7 @@ func NewResponseBytesFromErr(err error, debug bool) []byte {
 	return []byte(NewResponseStringFromErr(err, debug))
 }
 
-var errNilString = fmt.Sprintf("{Code:%d,Msg:%s,Data:%s}", CodeException, CodeException.ToString(), "")
+var errNilString = fmt.Sprintf("{Code:%d,Msg:\"%s\",Data:\"%s\"}", CodeException, CodeException.ToString(), "")
 
 func NewResponseStringFromErr(err error, debug bool) string {
 	if err == nil {
@@ -53,8 +53,8 @@ func NewResponseStringFromErr(err error, debug bool) string {
 	}
 
 	if IsErrBiz(err) {
-		return fmt.Sprintf("{Code:%d,Msg:%s,SubCode:%d,Data:%s}", code, code.ToString(), BizCode(err), data)
+		return fmt.Sprintf("{Code:%d,Msg:\"%s\",SubCode:%d,Data:\"%s\"}", code, code.ToString(), BizCode(err), data)
 	} else {
-		return fmt.Sprintf("{Code:%d,Msg:%s,Data:%s}", code, code.ToString(), data)
+		return fmt.Sprintf("{Code:%d,Msg:\"%s\",Data:\"%s\"}", code, code.ToString(), data)
 	}
 }
