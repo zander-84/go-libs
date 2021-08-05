@@ -36,7 +36,7 @@ func NewResponseBytesFromErr(err error, debug bool) []byte {
 	return []byte(NewResponseStringFromErr(err, debug))
 }
 
-var errNilString = fmt.Sprintf("{Code:%d,Msg:\"%s\",Data:\"%s\"}", CodeException, CodeException.ToString(), "")
+var errNilString = fmt.Sprintf(`{"Code":%d,"Msg":"%s","Data":"%s"}`, CodeException, CodeException.ToString(), "")
 
 func NewResponseStringFromErr(err error, debug bool) string {
 	if err == nil {
@@ -53,8 +53,8 @@ func NewResponseStringFromErr(err error, debug bool) string {
 	}
 
 	if IsErrBiz(err) {
-		return fmt.Sprintf("{Code:%d,Msg:\"%s\",SubCode:%d,Data:\"%s\"}", code, code.ToString(), BizCode(err), data)
+		return fmt.Sprintf(`{"Code":%d,"Msg":"%s","SubCode":%d,"Data":"%s"}`, code, code.ToString(), BizCode(err), data)
 	} else {
-		return fmt.Sprintf("{Code:%d,Msg:\"%s\",Data:\"%s\"}", code, code.ToString(), data)
+		return fmt.Sprintf(`{"Code":%d,"Msg":"%s","Data":"%s"}`, code, code.ToString(), data)
 	}
 }
