@@ -89,7 +89,7 @@ func (t *Time) TimeToUnixNano(source string, layout string) (int64, error) {
 	return sourceTime.UnixNano(), err
 }
 
-//TimeToUnix 时间转时间戳纳秒级
+//TimeToUnix 时间转时间戳秒级
 //例：TimeToUnix("2010-03-04", "2006-01-02") = 1265126400
 func (t *Time) TimeToUnix(source string, layout string) (int64, error) {
 	unixNano, err := t.TimeToUnixNano(source, layout)
