@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"errors"
 	"github.com/zander-84/go-libs/think"
 	"log"
 	"time"
@@ -115,4 +116,54 @@ func (t *Time) FormatDayHyphenFromTime(timer time.Time) string {
 		return ""
 	}
 	return timer.In(t.location).Format("2006-01-02")
+}
+func (t *Time) SpiltTimes(startAt time.Time, endAt time.Time, interval time.Duration) ([]time.Time, error) {
+	if startAt.IsZero() {
+		return nil, errors.New("起始时间不能为空")
+	}
+	if endAt.IsZero() {
+		return nil, errors.New("截止时间不能为空")
+	}
+
+	duration := endAt.Sub(startAt)
+	if duration <= 0 {
+		return nil, errors.New("截止时间必须大于起始时间")
+	}
+
+	timeSlice := make([]time.Time, 0)
+	timeSlice = append(timeSlice, startAt)
+	for {
+		startAt = startAt.Add(interval)
+		if startAt.Before(endAt) {
+			timeSlice = append(timeSlice, startAt)
+		} else if startAt.Equal(endAt) {
+			timeSlice = append(timeSlice, startAt)
+			break
+		} else {
+			timeSlice = append(timeSlice, endAt)
+			break
+		}
+	}
+	return timeSlice, nil
+}
+
+func (t *Time) SpiltTimesDeep(startAt time.Time, endAt time.Time, interval time.Duration) ([][2]time.Time, error) {
+	ts, err := t.SpiltTimes(startAt, endAt, interval)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(ts) < 2 {
+		return nil, errors.New("时间切片数量过小")
+	}
+	var res = make([][2]time.Time, 0)
+
+	tsLen := len(ts)
+	for k, _ := range ts {
+		if k == tsLen-1 {
+			break
+		}
+		res = append(res, [2]time.Time{ts[k], ts[k+1]})
+	}
+	return res, nil
 }
