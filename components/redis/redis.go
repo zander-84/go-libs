@@ -1,4 +1,4 @@
-package goredis
+package redis
 
 import (
 	"context"
@@ -38,7 +38,7 @@ func (this *Rdb) Start() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
-	if atomic.CompareAndSwapInt64(&this.once,0,1) {
+	if atomic.CompareAndSwapInt64(&this.once, 0, 1) {
 		this.engine = redis.NewClient(&redis.Options{
 			Addr:         this.conf.Addr,
 			Password:     this.conf.Password,

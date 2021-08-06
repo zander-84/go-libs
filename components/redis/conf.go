@@ -1,4 +1,4 @@
-package goredis
+package redis
 
 type Conf struct {
 	Addr        string //地址

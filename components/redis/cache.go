@@ -1,15 +1,12 @@
-package goredis
+package redis
 
 import (
 	"context"
 	"encoding/json"
 	"github.com/go-redis/redis/v8"
-	"github.com/zander-84/go-libs/components/cache"
 	"github.com/zander-84/go-libs/think"
 	"time"
 )
-
-var _ cache.Cache = (*Rdb)(nil)
 
 func (this *Rdb) Get(ctx context.Context, key string, toPtr interface{}) error {
 	b, err := this.engine.Get(ctx, key).Bytes()
@@ -33,7 +30,7 @@ func (this *Rdb) Set(ctx context.Context, key string, value interface{}, ttl tim
 
 func (this *Rdb) GetOrSet(ctx context.Context, key string, ptrValue interface{}, ttl time.Duration, f func() (interface{}, error)) error {
 	if err := this.Get(ctx, key, ptrValue); err != nil {
-		if !think.IsErrRecordNotFound(err){
+		if !think.IsErrRecordNotFound(err) {
 			return err
 		}
 

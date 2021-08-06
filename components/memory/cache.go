@@ -3,14 +3,11 @@ package memory
 import (
 	"context"
 	"errors"
-	"github.com/zander-84/go-libs/components/cache"
 	"github.com/zander-84/go-libs/think"
 	"reflect"
 	"runtime"
 	"time"
 )
-
-var _ cache.Cache = (*Memory)(nil)
 
 func (this *Memory) unmarshal(form interface{}, toPtr interface{}) (err error) {
 	defer func() {
