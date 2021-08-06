@@ -28,6 +28,7 @@ func BizCode(err error) int {
 	}
 	return wb.BizCode()
 }
+
 func (e *Error) Error() string {
 	return e.err.Error()
 }
@@ -118,24 +119,10 @@ func ErrTimeOut(err error) error {
 }
 
 // ErrBiz 业务错误
-func ErrBiz(err error) error {
-	return &Error{code: CodeBizError, err: err}
-}
-func ToErrBiz(subCode int, err error) error {
-	return &Error{
-		code:    CodeBizError,
-		bizCode: subCode,
-		err:     err,
-	}
+func ErrBiz(subCode int, err error) error {
+	return &Error{code: CodeBizError, bizCode: subCode, err: err}
 }
 
-func NewErrBiz(subCode int, errMsg string) error {
-	return &Error{
-		code:    CodeBizError,
-		bizCode: subCode,
-		err:     errors.New(errMsg),
-	}
-}
 func IsErrBiz(err error) bool {
 	e, ok := err.(*Error)
 	if ok == false {
