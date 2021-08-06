@@ -5,16 +5,16 @@ import (
 )
 
 func TestConv_ShouldStoU(t *testing.T) {
-	uint123 := DefaultConv.ShouldStoU("123123123")
+	uint := DefaultConv.ShouldStoU("123123123")
 
-	if uint123 != 123123123 {
-		t.Errorf("not eq 123123123, uint123 is %d", uint123)
+	if uint != 123123123 {
+		t.Errorf("not eq 123123123, uint is %d", uint)
 	}
 
 	uInt32 := DefaultConv.ShouldStoU32("4294967295")
 
-	if uInt32 != 0 {
-		t.Errorf("not eq 4294967295, uint32 is %d", uint123)
+	if uInt32 != 4294967295 {
+		t.Errorf("not eq 4294967295, uInt32 is %d", uInt32)
 	}
 
 	uInt64 := DefaultConv.ShouldStoU64("4294967296")
