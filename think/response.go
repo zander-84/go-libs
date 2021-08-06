@@ -4,6 +4,28 @@ import "fmt"
 
 var ResponseDebug = false
 
+var ResponseKeyError = "Error"
+var ResponseKeyMsg = "Msg"
+var ResponseKeyData = "Data"
+var ResponseKeySubCode = "SubCode"
+
+func ResponseSuccessData(data interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		ResponseKeyData: data,
+	}
+}
+
+func ResponseSuccessSource(data interface{}) interface{} {
+	return data
+}
+
+func ResponseSuccessDataWithSubCode(subCode int32, data interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		ResponseKeySubCode: subCode,
+		ResponseKeyData:    data,
+	}
+}
+
 type ResponseError struct {
 	Err     Code
 	SubCode int `json:",omitempty"`
@@ -36,7 +58,7 @@ func NewResponseBytesFromErr(err error, debug bool) []byte {
 	return []byte(NewResponseStringFromErr(err, debug))
 }
 
-var errNilString = fmt.Sprintf(`{"Error":%d,"Msg":"%s","Data":"%s"}`, CodeException, CodeException.ToString(), "")
+var errNilString = fmt.Sprintf(`{"%s":%d,"%s":"%s","%s":"%s"}`, ResponseKeyError, CodeException, ResponseKeyMsg, CodeException.ToString(), ResponseKeyData, "")
 
 func NewResponseStringFromErr(err error, debug bool) string {
 	if err == nil {
@@ -53,8 +75,8 @@ func NewResponseStringFromErr(err error, debug bool) string {
 	}
 
 	if IsErrBiz(err) {
-		return fmt.Sprintf(`{"Error":%d,"Msg":"%s","SubCode":%d,"Data":"%s"}`, code, code.ToString(), BizCode(err), data)
+		return fmt.Sprintf(`{"%s":%d,"%s":"%s","%s":%d,"%s":"%s"}`, ResponseKeyError, code, ResponseKeyMsg, code.ToString(), ResponseKeySubCode, BizCode(err), ResponseKeyData, data)
 	} else {
-		return fmt.Sprintf(`{"Error":%d,"Msg":"%s","Data":"%s"}`, code, code.ToString(), data)
+		return fmt.Sprintf(`{"%s":%d,"%s":"%s","%s":"%s"}`, ResponseKeyError, code, ResponseKeyMsg, code.ToString(), ResponseKeyData, data)
 	}
 }
