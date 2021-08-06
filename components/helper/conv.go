@@ -7,6 +7,8 @@ import (
 
 type Conv struct{}
 
+var DefaultConv = NewConv()
+
 func NewConv() *Conv { return new(Conv) }
 
 // 字符串 转 数字
@@ -27,11 +29,53 @@ func (c *Conv) ShouldStoI32(s string) int32 {
 }
 
 func (c *Conv) ShouldStoI64(s string) int64 {
-	int10, err := strconv.ParseInt(s, 10, 32)
+	int10, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {
 		return 0
 	}
 	return int10
+}
+
+//ShouldStoU
+//字符串转无符号整型
+// 备注：长度不能超过规定数据类型长度，不能包含其他非数字，否则返回0
+//10进制
+//u 无符号数字字符串
+//返回结果uint
+func (c *Conv) ShouldStoU(u string) uint {
+	uInt64, err := strconv.ParseUint(u, 10, 0)
+	if err != nil {
+		return 0
+	}
+	return uint(uInt64)
+}
+
+//ShouldStoU32
+//字符串转无符号整型
+// 备注：长度不能超过规定数据类型长度，不能包含其他非数字，否则返回0
+//10进制
+//u 无符号数字字符串
+//返回结果uint32
+func (c *Conv) ShouldStoU32(u string) uint32 {
+	uInt64, err := strconv.ParseUint(u, 10, 32)
+	if err != nil {
+		return 0
+	}
+	return uint32(uInt64)
+}
+
+//ShouldStoU64
+//字符串转无符号整型
+// 备注：长度不能超过规定数据类型长度，不能包含其他非数字，否则返回0
+//10进制
+//u 无符号数字字符串
+//返回结果uint64
+func (c *Conv) ShouldStoU64(u string) uint64 {
+	uInt64, err := strconv.ParseUint(u, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return uInt64
 }
 
 // 数字 转 字符串
