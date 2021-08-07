@@ -14,6 +14,7 @@ func TestNewEtcd(t *testing.T) {
 		TlsKey:    ``,
 		TlsCa:     ``,
 	})
+
 	if err := es.Start(); err != nil {
 		t.Fatal(err.Error())
 	}
@@ -21,12 +22,12 @@ func TestNewEtcd(t *testing.T) {
 	if err := es.RegisterServer(rs); err != nil {
 		t.Fatal(err.Error())
 	}
-	rs2 := RegisterServer("/project/endpoint/test/127.0.0.1:8080-2", "/project/endpoint/test/127.0.0.1:8080", 10)
+	rs2 := RegisterServer("/project/endpoint/test/127.0.0.1:8080-3", "/project/endpoint/test/127.0.0.1:8080", 10)
 	if err := es.RegisterServer(rs2); err != nil {
 		t.Fatal(err.Error())
 	}
 
-	lis := sd.NewListener("/project/endpoint/test/")
+	lis := sd.NewListener("/project/endpoint/test/", "-")
 	es.Watch(lis)
 	t.Log("success")
 	go func() {

@@ -10,20 +10,26 @@ import (
 )
 
 type Listener struct {
-	name       string
-	data       map[string]int
-	version    uint64
-	lock       sync.RWMutex
-	ctx        context.Context
-	cancelFunc context.CancelFunc
+	name            string
+	data            map[string]int
+	version         uint64
+	lock            sync.RWMutex
+	ctx             context.Context
+	cancelFunc      context.CancelFunc
+	spiltAddrWeight string
 }
 
 // NewListener name 在etcd中是prefix key
-func NewListener(name string) *Listener {
+func NewListener(name string, spiltAddrWeight string) *Listener {
 	l := new(Listener)
 	l.version = 0
 	l.data = make(map[string]int)
 	l.name = name
+	l.spiltAddrWeight = spiltAddrWeight
+	if l.spiltAddrWeight == "" {
+		l.spiltAddrWeight = "-"
+	}
+
 	l.ctx, l.cancelFunc = context.WithCancel(context.Background())
 	return l
 }
@@ -51,20 +57,21 @@ func (l *Listener) Exist(addr string) bool {
 	return ok
 }
 
-// 全量设置
-func (l *Listener) Set(data map[string]int) {
+//Set  全量设置
+func (l *Listener) Set(data map[string]int) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	l.data = data
 	atomic.AddUint64(&l.version, 1)
+	return nil
 }
 
-// 增量添加
-func (l *Listener) Add(addr string) {
-	l.AddWeight(addr, 1)
+// Add 增量添加
+func (l *Listener) Add(addr string) error {
+	return l.AddWeight(addr, 1)
 }
 
-func (l *Listener) AddWeight(addr string, weight int) {
+func (l *Listener) AddWeight(addr string, weight int) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	if weight == 0 {
@@ -72,13 +79,15 @@ func (l *Listener) AddWeight(addr string, weight int) {
 	}
 	l.data[addr] = weight
 	atomic.AddUint64(&l.version, 1)
+	return nil
 }
 
-func (l *Listener) Remove(addr string) {
+func (l *Listener) Remove(addr string) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	delete(l.data, addr)
 	atomic.AddUint64(&l.version, 1)
+	return nil
 }
 
 func (l *Listener) GetVersion() uint64 {
@@ -101,8 +110,8 @@ func (l *Listener) Get() (map[string]int, []string, uint64) {
 	return dataMap, dataSlice, atomic.LoadUint64(&l.version)
 }
 
-// SpiltByHyphen rowAddr=ip:port-weight
-func (l *Listener) SpiltByHyphen(rowAddr string) (addr string, weight int) {
+// GetAddrWithWeight rowAddr=ip:port-weight
+func (l *Listener) GetAddrWithWeight(rowAddr string) (addr string, weight int) {
 	tmpArr := strings.Split(rowAddr, "-")
 	addr = tmpArr[0]
 

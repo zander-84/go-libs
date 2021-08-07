@@ -2,7 +2,6 @@ package etcd
 
 import (
 	"context"
-	"github.com/zander-84/go-libs/components/helper/sd"
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"strings"
@@ -71,7 +70,7 @@ func (this *Etcd) withAlive(ctx context.Context, key string, val string, ttl int
 	return nil
 }
 
-func (this *Etcd) Watch(listener *sd.Listener) {
+func (this *Etcd) Watch(listener Listener) {
 	getResp, err := this.engine.Get(listener.Context(), listener.Name(),
 		clientv3.WithPrefix())
 	if err != nil {
@@ -79,8 +78,8 @@ func (this *Etcd) Watch(listener *sd.Listener) {
 	} else {
 		for i := range getResp.Kvs {
 			rowAddr := strings.TrimPrefix(string(getResp.Kvs[i].Key), listener.Name())
-			addr, weight := listener.SpiltByHyphen(rowAddr)
-			listener.AddWeight(addr, weight)
+			addr, weight := listener.GetAddrWithWeight(rowAddr)
+			_ = listener.AddWeight(addr, weight)
 		}
 	}
 
@@ -89,17 +88,26 @@ func (this *Etcd) Watch(listener *sd.Listener) {
 		for n := range rch {
 			for _, ev := range n.Events {
 				rowAddr := strings.TrimPrefix(string(ev.Kv.Key), listener.Name())
-				addr, weight := listener.SpiltByHyphen(rowAddr)
+				addr, weight := listener.GetAddrWithWeight(rowAddr)
 
 				switch ev.Type {
 				case mvccpb.PUT:
 					if !listener.Exist(addr) {
-						listener.AddWeight(addr, weight)
+						_ = listener.AddWeight(addr, weight)
 					}
 				case mvccpb.DELETE:
-					listener.Remove(addr)
+					_ = listener.Remove(addr)
 				}
 			}
 		}
 	}()
+}
+
+type Listener interface {
+	Name() string
+	GetAddrWithWeight(row string) (string, int)
+	Context() context.Context
+	AddWeight(addr string, weight int) error
+	Exist(addr string) bool
+	Remove(addr string) error
 }

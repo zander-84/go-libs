@@ -6,7 +6,7 @@ import (
 )
 
 func TestRoundRobin(t *testing.T) {
-	l := NewListener("test")
+	l := NewListener("test", "")
 	l.Set(map[string]int{
 		"127.0.0.1:8081": 1,
 		"127.0.0.1:8082": 1,
@@ -29,7 +29,7 @@ func TestRoundRobin(t *testing.T) {
 //BenchmarkRoundRobin-8   	11099640	       114 ns/op  保存数据
 //BenchmarkRoundRobin-8   	20444817	        57.6 ns/op  不存数据
 func BenchmarkRoundRobin(b *testing.B) {
-	l := NewListener("test")
+	l := NewListener("test", "")
 	l.Set(map[string]int{
 		"127.0.0.1:8081": 1,
 		"127.0.0.1:8082": 1,
