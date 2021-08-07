@@ -18,6 +18,7 @@ type Listener struct {
 	cancelFunc context.CancelFunc
 }
 
+// NewListener name 在etcd中是prefix key
 func NewListener(name string) *Listener {
 	l := new(Listener)
 	l.version = 0
@@ -100,6 +101,7 @@ func (l *Listener) Get() (map[string]int, []string, uint64) {
 	return dataMap, dataSlice, atomic.LoadUint64(&l.version)
 }
 
+// SpiltByHyphen rowAddr=ip:port-weight
 func (l *Listener) SpiltByHyphen(rowAddr string) (addr string, weight int) {
 	tmpArr := strings.Split(rowAddr, "-")
 	addr = tmpArr[0]

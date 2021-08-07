@@ -1,4 +1,4 @@
-package sd
+package etcd
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 )
 
 type Server struct {
-	key        string
-	val        string
+	key        string // prefix + addr:port  ||  prefix + addr:port-weight
+	val        string // 预留
 	ttl        int64
 	ctx        context.Context
 	cancelFunc context.CancelFunc

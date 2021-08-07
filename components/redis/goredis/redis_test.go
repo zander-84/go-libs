@@ -122,39 +122,6 @@ func testRdbDel(t *testing.T, rdb *Rdb) {
 	}
 }
 
-func testRdbGetOrSetFast(t *testing.T, rdb *Rdb) {
-	key := "str"
-	val := "aaaa"
-	get := ""
-
-	get2, err := rdb.GetOrSetFast(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
-		return val, nil
-	})
-	if err != nil {
-		t.Fatal("Exists  err: ", err.Error())
-	}
-
-	if get3, ok := get2.(string); ok {
-		if val != get3 {
-			t.Fatal("set get string err: ", get2)
-		}
-	} else {
-		t.Fatal("testRdbGetOrSetFast err: ", get2)
-	}
-
-	get2, err = rdb.GetOrSetFast(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
-		return "err", nil
-	})
-	if get3, ok := get2.(string); ok {
-		if val != get3 {
-			t.Fatal("set get string err: ", get2)
-		}
-	} else {
-		t.Fatal("testRdbGetOrSetFast err: ", get2)
-	}
-
-}
-
 func testRdbGetOrSet(t *testing.T, rdb *Rdb) {
 	key := "str"
 	val := "aaaa"

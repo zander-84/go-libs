@@ -2,3 +2,4 @@
 vendor
 .DS_Store
 start_proxy.sh
+components/etcd/conf.txt
