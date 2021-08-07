@@ -36,9 +36,40 @@ func (c *Conv) ShouldStoI64(s string) int64 {
 	return int10
 }
 
+//ShouldUtoS
+//只限10进制
+func (c *Conv) ShouldUtoS(u uint) string {
+	return strconv.FormatUint(uint64(u), 10)
+}
+
+//ShouldU32toS
+//只限10进制
+func (c *Conv) ShouldU32toS(u uint32) string {
+	return strconv.FormatUint(uint64(u), 10)
+}
+
+//ShouldU64toS
+//只限10进制
+func (c *Conv) ShouldU64toS(u uint64) string {
+	return strconv.FormatUint(u, 10)
+}
+
+//ShouldStoB
+//字符串bool转系统bool
+//备注：
+//True类型:"1", "t", "T", "true", "TRUE", "True"
+//False类型:"0", "f", "F", "false", "FALSE", "False"
+func (c *Conv) ShouldStoB(b string) bool {
+	bo, err := strconv.ParseBool(b)
+	if err != nil {
+		return false
+	}
+	return bo
+}
+
 //ShouldStoU
 //字符串转无符号整型
-// 备注：长度不能超过规定数据类型长度，不能包含其他非数字，否则返回0
+//备注：长度不能超过系统类型长度/其他非数字/为空，否则返回0
 //10进制
 //u 无符号数字字符串
 //返回结果uint
@@ -52,7 +83,7 @@ func (c *Conv) ShouldStoU(u string) uint {
 
 //ShouldStoU32
 //字符串转无符号整型
-// 备注：长度不能超过规定数据类型长度，不能包含其他非数字，否则返回0
+//备注：长度不能超过系统类型长度/其他非数字/为空，否则返回0
 //10进制
 //u 无符号数字字符串
 //返回结果uint32
@@ -66,7 +97,7 @@ func (c *Conv) ShouldStoU32(u string) uint32 {
 
 //ShouldStoU64
 //字符串转无符号整型
-// 备注：长度不能超过规定数据类型长度，不能包含其他非数字，否则返回0
+//备注：长度不能超过系统类型长度/其他非数字/为空，否则返回0
 //10进制
 //u 无符号数字字符串
 //返回结果uint64
