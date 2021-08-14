@@ -2,66 +2,44 @@ package helper
 
 import (
 	"errors"
-	"github.com/zander-84/go-libs/think"
-	"log"
 	"time"
 )
 
 type Time struct {
-	location *time.Location
-	timeZone string
 }
 
-//"2006-01-02 15:04:05"
-func NewTime(timeZone string) *Time {
+//NewTime "2006-01-02 15:04:05"
+func NewTime() *Time {
 	this := new(Time)
-	if timeZone == "" {
-		timeZone = think.DefaultTimeZone
-	}
-	var err error
-	this.location, err = time.LoadLocation(timeZone)
-	if err != nil {
-		log.Fatal("err timeZone: ", timeZone)
-	}
-	this.timeZone = timeZone
 	return this
-}
-func (t *Time) TimeZone() string {
-	return t.timeZone
-}
-func (t *Time) Location() *time.Location {
-	return t.location
 }
 
 func (t *Time) Now() time.Time {
-	return time.Now().In(t.location)
+	return time.Now()
 }
 
-func (t *Time) LocationNow(src time.Time) time.Time {
-	return src.In(t.location)
+func (t *Time) Location() *time.Location {
+	return time.Local
 }
+
 func (t *Time) Format(layout string) string {
 	return t.Now().Format(layout) //"2006-01-02 15:04:05"
 }
 
-// layout "01/02/2006", sourceTime "02/08/2020"
+//Parse layout "01/02/2006", sourceTime "02/08/2020"
 func (t *Time) Parse(layout string, sourceTime string) (time.Time, error) {
-	t1, err := time.ParseInLocation(layout, sourceTime, t.location)
-	if err != nil {
-		return time.Time{}, err
-	}
-	return t1.In(t.location), err
+	return time.Parse(layout, sourceTime)
 }
 
 func (t *Time) DayTime(calcDay int) time.Time {
 	day := t.Now().AddDate(0, 0, calcDay).Format("2006-01-02")
-	today, _ := time.ParseInLocation("2006-01-02", day, t.location)
+	today, _ := time.Parse("2006-01-02", day)
 	return today
 }
 
 //UnixToTime  时间戳转时间 sec秒和 nsec纳秒
 func (t *Time) UnixToTime(sec int64, nsec int64) time.Time {
-	return time.Unix(sec, nsec).In(t.location)
+	return time.Unix(sec, nsec)
 }
 
 //Unix 时间戳秒 例：1628127247
@@ -83,7 +61,7 @@ func (t *Time) UnixMsec() int64 {
 //例：timeIns.TimeToUnixNano("2006-01-02T15:04:05.999999999", "2006-01-02T15:04:05.999999999")
 //返回结果 1136185445999999999
 func (t *Time) TimeToUnixNano(source string, layout string) (int64, error) {
-	sourceTime, err := time.ParseInLocation(layout, source, t.location)
+	sourceTime, err := time.Parse(layout, source)
 	if err != nil {
 		return 0, err
 	}
@@ -142,28 +120,28 @@ func (t *Time) FormatSlashFromTime(timer time.Time) string {
 	if timer.IsZero() {
 		return ""
 	}
-	return timer.In(t.location).Format("2006/01/02 15:04:05")
+	return timer.Format("2006/01/02 15:04:05")
 }
 
 func (t *Time) FormatHyphenFromTime(timer time.Time) string {
 	if timer.IsZero() {
 		return ""
 	}
-	return timer.In(t.location).Format("2006-01-02 15:04:05")
+	return timer.Format("2006-01-02 15:04:05")
 }
 
 func (t *Time) FormatDaySlashFromTime(timer time.Time) string {
 	if timer.IsZero() {
 		return ""
 	}
-	return timer.In(t.location).Format("2006/01/02")
+	return timer.Format("2006/01/02")
 }
 
 func (t *Time) FormatDayHyphenFromTime(timer time.Time) string {
 	if timer.IsZero() {
 		return ""
 	}
-	return timer.In(t.location).Format("2006-01-02")
+	return timer.Format("2006-01-02")
 }
 func (t *Time) IntervalSliceTimes(startAt time.Time, endAt time.Time, interval time.Duration) ([]time.Time, error) {
 	if startAt.IsZero() {

@@ -8,7 +8,7 @@ import (
 )
 
 func TestUnique(t *testing.T) {
-	u := NewUnique("LF", "A", "-", "")
+	u := NewUnique("LF", "A", "-")
 	var c = make(map[string]bool, 0)
 	var l sync.Mutex
 	t1 := time.Now()
@@ -41,7 +41,7 @@ func TestUnique(t *testing.T) {
 
 //BenchmarkUnique-8   	 1397260	       850 ns/op
 func BenchmarkUnique(b *testing.B) {
-	u := NewUnique("LF", "A", "-", "")
+	u := NewUnique("LF", "A", "-")
 	for i := 0; i < b.N; i++ {
 		u.ID()
 	}

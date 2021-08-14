@@ -9,9 +9,9 @@ type File struct {
 	time *Time
 }
 
-func NewFile(timeZone string) *File {
+func NewFile() *File {
 	this := new(File)
-	this.time = NewTime(timeZone)
+	this.time = NewTime()
 	return this
 }
 

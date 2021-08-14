@@ -27,7 +27,7 @@ func NewRobfig(conf Conf) *Robfig {
 
 func (this *Robfig) init(conf Conf) {
 	this.conf = conf.SetDefault()
-	this.time = helper.NewTime(this.conf.TimeZone)
+	this.time = helper.NewTime()
 	this.err = think.ErrInstanceUnDone
 	this.jobs = make(map[string]*cron2.Job)
 	atomic.StoreInt64(&this.once, 0)
@@ -51,7 +51,7 @@ func (this *Robfig) Stop() {
 	}
 
 	this.engine = nil
-    atomic.StoreInt64(&this.once, 0)
+	atomic.StoreInt64(&this.once, 0)
 	this.err = think.ErrInstanceUnDone
 	this.jobs = make(map[string]*cron2.Job)
 }

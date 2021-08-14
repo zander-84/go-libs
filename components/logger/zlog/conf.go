@@ -1,13 +1,8 @@
 package zlog
 
-import (
-	"github.com/zander-84/go-libs/think"
-)
-
 type Conf struct {
 	Level       string //{debug info warn error panic fatal}
 	Name        string //日志名称
-	TimeZone    string
 	AddCaller   bool
 	ConsoleHook struct {
 		Enable bool //是否启用
@@ -50,9 +45,6 @@ func (c *Conf) SetDefaultBasic() {
 		c.Name = "log"
 	}
 
-	if c.TimeZone == "" {
-		c.TimeZone = think.DefaultTimeZone
-	}
 }
 
 func (c *Conf) SetDefaultFileHook() {

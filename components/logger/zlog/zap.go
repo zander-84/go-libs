@@ -36,8 +36,8 @@ func NewZapLog(conf Conf, writers []io.Writer) *ZLog {
 
 func (this *ZLog) init(conf Conf, writers []io.Writer) {
 	this.conf = conf.SetDefault()
-	this.time = helper.NewTime(this.conf.TimeZone)
-	this.file = helper.NewFile(this.conf.TimeZone)
+	this.time = helper.NewTime()
+	this.file = helper.NewFile()
 	this.err = think.ErrInstanceUnDone
 	atomic.StoreInt64(&this.once, 0)
 	this.writers = writers

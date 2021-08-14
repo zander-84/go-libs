@@ -30,7 +30,7 @@ type Gdb struct {
 func (this *Gdb) init(conf Conf) {
 	this.conf = conf.SetDefault()
 	this.err = think.ErrInstanceUnDone
-	this.time = helper.NewTime(this.conf.TimeZone)
+	this.time = helper.NewTime()
 	atomic.StoreInt64(&this.once, 0)
 	this.engine = nil
 	this.sqlDB = nil
@@ -79,7 +79,7 @@ func (this *Gdb) Start() error {
 
 		// mysql conf
 		mysqlCnf := mysql.New(mysql.Config{
-			DSN: fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=%s", this.conf.User, this.conf.Pwd, this.conf.Host, this.conf.Port, this.conf.Database, this.conf.Charset, url.QueryEscape(this.time.TimeZone())), // DSN data source name
+			DSN: fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=%s", this.conf.User, this.conf.Pwd, this.conf.Host, this.conf.Port, this.conf.Database, this.conf.Charset, url.QueryEscape(this.conf.TimeZone)), // DSN data source name
 			//DefaultStringSize:         256,   // string 类型字段的默认长度
 			//DisableDatetimePrecision:  true,  // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
 			DontSupportRenameIndex:    true, // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
