@@ -58,7 +58,7 @@ func (this *Gdb) Start() error {
 			},
 			AllowGlobalUpdate: false,
 			NowFunc: func() time.Time {
-				return time.Now().In(this.time.Location())
+				return time.Now()
 			},
 		}
 		// debug
