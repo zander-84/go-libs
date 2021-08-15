@@ -50,7 +50,7 @@ func (this *ZLog) Start() error {
 		newCore := make([]zapcore.Core, 0)
 		encoderConfig := zap.NewProductionEncoderConfig()
 		encoderConfig.EncodeTime = func(i time.Time, encoder zapcore.PrimitiveArrayEncoder) {
-			encoder.AppendString(this.time.FormatHyphen())
+			encoder.AppendString(this.time.FormatHyphenFromNow())
 		}
 
 		logLevel := zap.DebugLevel

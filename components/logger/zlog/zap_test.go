@@ -12,7 +12,6 @@ func TestZap(t *testing.T) {
 	zlog := NewZapLog(Conf{
 		Level:     "info",
 		Name:      "test",
-		TimeZone:  "",
 		AddCaller: false,
 		ConsoleHook: struct {
 			Enable bool

@@ -19,7 +19,7 @@ const (
 
 	CodeParamError Code = 101400 // 参数错误
 
-	CodeRecordNotFound Code = 100404 // 记录错误
+	CodeNotFound Code = 100404 // 记录错误
 
 	CodeRepeat Code = 100405 // 重复操作
 
@@ -52,7 +52,7 @@ func (c Code) HttpCode() int {
 	case CodeSuccess, CodeSuccessAction:
 		return http.StatusOK
 
-	case CodeParamError, CodeRecordNotFound, CodeAlterError, CodeBizError, CodeUnDone,CodeRepeat:
+	case CodeParamError, CodeNotFound, CodeAlterError, CodeBizError, CodeUnDone, CodeRepeat:
 		return http.StatusBadRequest
 
 	case CodeForbidden, CodeSignError:
@@ -82,7 +82,7 @@ func (c Code) ToString() string {
 		return "成功"
 	case CodeParamError:
 		return "参数错误"
-	case CodeRecordNotFound:
+	case CodeNotFound:
 		return "页面丢失"
 	case CodeRepeat:
 		return "重复操作"

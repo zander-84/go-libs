@@ -58,7 +58,7 @@ func (this *Memory) GetOrSet(ctx context.Context, key string, recPtr interface{}
 	if err == nil {
 		return err
 	}
-	if !think.IsErrRecordNotFound(err) {
+	if !think.IsErrNotFound(err) {
 		return err
 	}
 

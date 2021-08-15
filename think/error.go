@@ -33,19 +33,19 @@ func (e *Error) Error() string {
 	return e.err.Error()
 }
 
-// ErrRecordNotFound 数据未找到
-func ErrRecordNotFound(err error) error {
-	return &Error{code: CodeRecordNotFound, err: err}
+// ErrNotFound 数据未找到
+func ErrNotFound(err error) error {
+	return &Error{code: CodeNotFound, err: err}
 }
 
-var ErrInstanceRecordNotFound = ErrRecordNotFound(errors.New("record not found"))
+var ErrInstanceRecordNotFound = ErrNotFound(errors.New("record not found"))
 
-func IsErrRecordNotFound(err error) bool {
+func IsErrNotFound(err error) bool {
 	e, ok := err.(*Error)
 	if ok == false {
 		return false
 	}
-	if e.code == CodeRecordNotFound {
+	if e.code == CodeNotFound {
 		return true
 	}
 	return false

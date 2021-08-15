@@ -9,7 +9,7 @@ import (
 
 // go test -v  -run TestRobfig
 func TestRobfig(t *testing.T) {
-	c := NewRobfig(Conf{TimeZone: ""})
+	c := NewRobfig(Conf{})
 	if err := c.Start(); err != nil {
 		t.Fatal("start cron err: ", err.Error())
 	}

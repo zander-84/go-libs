@@ -33,7 +33,7 @@ func (this *Rdb) Set(ctx context.Context, key string, value interface{}, ttl tim
 
 func (this *Rdb) GetOrSet(ctx context.Context, key string, ptrValue interface{}, ttl time.Duration, f func() (interface{}, error)) error {
 	if err := this.Get(ctx, key, ptrValue); err != nil {
-		if !think.IsErrRecordNotFound(err){
+		if !think.IsErrNotFound(err) {
 			return err
 		}
 
