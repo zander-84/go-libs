@@ -16,7 +16,7 @@ func NewFile() *File {
 }
 
 func (this *File) GetDayPrefixPath(dir string, filename string) string {
-	return strings.TrimRight(dir, "/") + "/" + this.time.FormatDayHyphen() + "-" + filename
+	return strings.TrimRight(dir, "/") + "/" + this.time.FormatDayHyphenFromNow() + "-" + filename
 }
 
 func (this *File) GetPrefixPath(dir string, filename string) string {
