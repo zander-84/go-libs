@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type Code int32
+type Code uint32
 
 const (
 	CodeSuccess Code = 100200 // 成功
