@@ -69,6 +69,7 @@ func (s *Server) Stop(ctx context.Context) error {
 	}()
 	select {
 	case <-ctx.Done():
+		s.server.Stop()
 		return ctx.Err()
 	case <-fin:
 		return nil
