@@ -55,7 +55,7 @@ func (s *Server) Start(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("[gRPC] server listening on: %s \n", lis.Addr().String())
+	log.Printf("[GRPC] server listening on: %s \n", lis.Addr().String())
 
 	return s.server.Serve(lis)
 }
