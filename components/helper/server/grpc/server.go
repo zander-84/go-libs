@@ -62,7 +62,16 @@ func (s *Server) Start(ctx context.Context) error {
 
 // Stop the gRPC server.
 func (s *Server) Stop(ctx context.Context) error {
-	s.server.GracefulStop()
-	return nil
+	fin := make(chan struct{}, 1)
+	go func() {
+		s.server.GracefulStop()
+		fin <- struct{}{}
+	}()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-fin:
+		return nil
+	}
 }
 
