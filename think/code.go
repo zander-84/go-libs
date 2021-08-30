@@ -108,6 +108,8 @@ func (c Code) ToString() string {
 		return "未定义"
 	case CodeTimeOut:
 		return "超时"
+	case CodeException:
+		return "异常"
 	case CodeTypeError:
 		return "错误类型"
 	default:
