@@ -111,5 +111,11 @@ func (s *Server) Start(ctx context.Context) error {
 
 // Stop  the HTTP server.
 func (s *Server) Stop(ctx context.Context) error {
-	return s.Server.Shutdown(ctx)
+	err := s.Server.Shutdown(ctx)
+	if err == nil {
+		log.Println("[HTTP]  gracefully stop")
+	} else {
+		log.Println("[HTTP]  errServerClosed")
+	}
+	return err
 }

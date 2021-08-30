@@ -21,7 +21,7 @@ type Server struct {
 type ServerOption func(o *serverOptions)
 
 type serverOptions struct {
-	server           *grpc.Server
+	server *grpc.Server
 }
 
 // ServerHandler with server handler.
@@ -30,7 +30,6 @@ func ServerHandler(s *grpc.Server) ServerOption {
 		o.server = s
 	}
 }
-
 
 // NewServer creates a gRPC server by options.
 func NewServer(network, addr string, opts ...ServerOption) *Server {
@@ -65,14 +64,15 @@ func (s *Server) Stop(ctx context.Context) error {
 	fin := make(chan struct{}, 1)
 	go func() {
 		s.server.GracefulStop()
+		log.Println("[GRPC]  GracefulStop")
 		fin <- struct{}{}
 	}()
 	select {
 	case <-ctx.Done():
+		log.Println("[GRPC]  Stop")
 		s.server.Stop()
 		return ctx.Err()
 	case <-fin:
 		return nil
 	}
 }
-
