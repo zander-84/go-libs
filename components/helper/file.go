@@ -5,14 +5,20 @@ import (
 	"strings"
 )
 
+var defaultFile = NewFile()
+
 type File struct {
 	time *Time
 }
 
 func NewFile() *File {
 	this := new(File)
-	this.time = NewTime()
+	this.time = defaultTime
 	return this
+}
+
+func GetFile() *File {
+	return defaultFile
 }
 
 func (this *File) GetDayPrefixPath(dir string, filename string) string {

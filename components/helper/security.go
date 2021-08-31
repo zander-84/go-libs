@@ -11,9 +11,13 @@ import (
 	"encoding/hex"
 )
 
+var defaultSecurity = NewSecurity()
+
 type Security struct{}
 
 func NewSecurity() *Security { return new(Security) }
+
+func GetSecurity() *Security { return defaultSecurity }
 
 func (*Security) Sum256(str string) string {
 	data := sha256.Sum256([]byte(str))

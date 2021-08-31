@@ -113,7 +113,7 @@ func (s *Server) Start(ctx context.Context) error {
 func (s *Server) Stop(ctx context.Context) error {
 	err := s.Server.Shutdown(ctx)
 	if err == nil {
-		log.Println("[HTTP]  gracefully stop")
+		log.Println("[HTTP]  GracefulStop")
 	} else {
 		log.Println("[HTTP]  errServerClosed")
 	}

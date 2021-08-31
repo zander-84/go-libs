@@ -5,13 +5,15 @@ import (
 	"strconv"
 )
 
-type Conv struct{}
+var defaultConv = NewConv()
 
-var DefaultConv = NewConv()
+type Conv struct{}
 
 func NewConv() *Conv { return new(Conv) }
 
-// 字符串 转 数字
+func GetConv() *Conv { return defaultConv }
+
+//ShouldStoI 字符串 转 数字
 func (c *Conv) ShouldStoI(s string) int {
 	n, err := strconv.Atoi(s)
 	if err != nil {

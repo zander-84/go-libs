@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+var defaultTime = NewTime()
+
 type Time struct {
 }
 
@@ -12,6 +14,10 @@ type Time struct {
 func NewTime() *Time {
 	this := new(Time)
 	return this
+}
+
+func GetTime() *Time {
+	return defaultTime
 }
 
 func (t *Time) Now() time.Time {
@@ -55,6 +61,10 @@ func (t *Time) ShouldTimeToUnix(timer time.Time) int64 {
 	return timer.Unix()
 }
 
+func (t *Time) Unix() int64 {
+	return time.Now().Unix()
+}
+
 //ShouldTimeToUnixMilli 时间戳毫秒级 例：1628127443176
 func (t *Time) ShouldTimeToUnixMilli(timer time.Time) int64 {
 	if timer.IsZero() {
@@ -63,12 +73,20 @@ func (t *Time) ShouldTimeToUnixMilli(timer time.Time) int64 {
 	return timer.UnixNano() / 1e6
 }
 
+func (t *Time) UnixMilli() int64 {
+	return time.Now().UnixNano() / 1e6
+}
+
 //ShouldTimeToUnixNano 时间戳纳秒 例：1628127212214105000
 func (t *Time) ShouldTimeToUnixNano(timer time.Time) int64 {
 	if timer.IsZero() {
 		return 0
 	}
 	return timer.UnixNano()
+}
+
+func (t *Time) UnixNano() int64 {
+	return time.Now().UnixNano()
 }
 
 //ParseTimeToUnixNano 时间转时间戳纳秒级
