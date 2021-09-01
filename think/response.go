@@ -1,9 +1,5 @@
 package think
 
-import (
-	"encoding/json"
-)
-
 var ResponseDebug = false
 
 type Response struct {
@@ -13,16 +9,18 @@ type Response struct {
 	Debug interface{} `json:",omitempty"`
 }
 
-func ResponseSuccessData(data interface{}) map[string]interface{} {
-	return map[string]interface{}{
-		"Data": data,
-	}
+func (r *Response) Reset() {
+	r.Code = 0
+	r.Msg = ""
+	r.Data = nil
+	r.Debug = nil
 }
 
 func NewResponseFromErr(err error, debug bool) *Response {
+	var code = Err2Code(err)
 	var r = Response{
-		Code: Err2Code(err),
-		Msg:  Err2Code(err).ToString(),
+		Code: code,
+		Msg:  code.ToString(),
 		Data: nil,
 	}
 
@@ -31,7 +29,7 @@ func NewResponseFromErr(err error, debug bool) *Response {
 			BizCode(err),
 			err.Error(),
 		}
-	} else if r.Code == CodeSystemSpaceError {
+	} else if code == CodeSystemSpaceError {
 		r.Data = nil
 	} else {
 		r.Data = err.Error()
@@ -41,9 +39,4 @@ func NewResponseFromErr(err error, debug bool) *Response {
 		r.Debug = err.Error()
 	}
 	return &r
-}
-
-func NewResponseBytesFromErr(err error, debug bool) []byte {
-	res, _ := json.Marshal(NewResponseFromErr(err, debug))
-	return res
 }
