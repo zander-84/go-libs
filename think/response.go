@@ -7,9 +7,10 @@ import (
 var ResponseDebug = false
 
 type Response struct {
-	Code Code
-	Msg  string
-	Data interface{}
+	Code  Code
+	Msg   string
+	Data  interface{}
+	Debug interface{} `json:",omitempty"`
 }
 
 func ResponseSuccessData(data interface{}) map[string]interface{} {
@@ -25,17 +26,19 @@ func NewResponseFromErr(err error, debug bool) *Response {
 		Data: nil,
 	}
 
-	if r.Code != CodeSystemSpaceError {
-		r.Data = err.Error()
-	}
 	if IsErrBiz(err) {
 		r.Data = []string{
 			BizCode(err),
 			err.Error(),
 		}
-	}
-	if debug {
+	} else if r.Code == CodeSystemSpaceError {
+		r.Data = nil
+	} else {
 		r.Data = err.Error()
+	}
+
+	if debug {
+		r.Debug = err.Error()
 	}
 	return &r
 }
