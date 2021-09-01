@@ -1,13 +1,13 @@
 package validate
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	zh_translations "github.com/go-playground/validator/v10/translations/zh"
 	"reflect"
-	"strings"
 )
 
 // 兼容gin
@@ -38,8 +38,6 @@ func NewValidate(conf Conf) *Validate {
 		if label == "" {
 			return fld.Name
 		}
-		label = strings.Replace(label, ":", "\":\"", 1)
-		label = strings.Replace(label, "：", "\":\"", 1)
 
 		return label
 	})
@@ -53,18 +51,16 @@ func (v *Validate) ValidateStruct(obj interface{}) error {
 		if _, ok := err.(validator.ValidationErrors); !ok {
 			return err
 		}
-		errStr := "{"
-		hasErr := false
+		errArray := make([]string, 0)
 		for _, err := range err.(validator.ValidationErrors) {
-			errStr += "\"" + err.Translate(v.trans) + "\","
-			hasErr = true
+			errArray = append(errArray, err.Translate(v.trans))
 		}
-		if hasErr {
-			errStr = strings.Trim(errStr, ",")
-			errStr += "}"
-			return errors.New(errStr)
-		} else {
-			return err
+		if len(errArray) > 0 {
+			if t, err := json.Marshal(errArray); err != nil {
+				return err
+			} else {
+				return errors.New(string(t))
+			}
 		}
 	}
 	return nil
