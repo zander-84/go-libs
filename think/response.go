@@ -13,6 +13,12 @@ type Response struct {
 	Data    interface{}
 }
 
+func ResponseSuccessData(data interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"Data": data,
+	}
+}
+
 func NewResponseFromErr(err error, debug bool) *Response {
 	var r = Response{
 		Code:    Err2Code(err),
