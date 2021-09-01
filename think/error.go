@@ -6,25 +6,25 @@ import (
 
 type Error struct {
 	code    Code
-	bizCode int
+	bizCode string
 	err     error
 }
 type bizCode interface {
-	BizCode() int
+	BizCode() string
 }
 
-func (e *Error) BizCode() int { return e.bizCode }
+func (e *Error) BizCode() string { return e.bizCode }
 
 // Unwrap provides compatibility for Go 1.13 error chains.
 func (e *Error) Unwrap() error { return e.err }
 
-func BizCode(err error) int {
+func BizCode(err error) string {
 	if err == nil {
-		return 0
+		return ""
 	}
 	wb, ok := err.(bizCode)
 	if !ok {
-		return 0
+		return ""
 	}
 	return wb.BizCode()
 }
@@ -119,7 +119,7 @@ func ErrTimeOut(err error) error {
 }
 
 // ErrBiz 业务错误
-func ErrBiz(subCode int, err error) error {
+func ErrBiz(subCode string, err error) error {
 	return &Error{code: CodeBizError, bizCode: subCode, err: err}
 }
 

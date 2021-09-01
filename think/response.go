@@ -7,10 +7,9 @@ import (
 var ResponseDebug = false
 
 type Response struct {
-	Code    Code
-	SubCode int `json:",omitempty"`
-	Msg     string
-	Data    interface{}
+	Code Code
+	Msg  string
+	Data interface{}
 }
 
 func ResponseSuccessData(data interface{}) map[string]interface{} {
@@ -21,17 +20,19 @@ func ResponseSuccessData(data interface{}) map[string]interface{} {
 
 func NewResponseFromErr(err error, debug bool) *Response {
 	var r = Response{
-		Code:    Err2Code(err),
-		SubCode: 0,
-		Msg:     Err2Code(err).ToString(),
-		Data:    nil,
+		Code: Err2Code(err),
+		Msg:  Err2Code(err).ToString(),
+		Data: nil,
 	}
 
 	if r.Code != CodeSystemSpaceError {
 		r.Data = err.Error()
 	}
 	if IsErrBiz(err) {
-		r.SubCode = BizCode(err)
+		r.Data = []string{
+			BizCode(err),
+			err.Error(),
+		}
 	}
 	if debug {
 		r.Data = err.Error()
