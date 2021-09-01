@@ -50,6 +50,9 @@ func NewValidate(conf Conf) *Validate {
 // ValidateStruct receives any kind of type, but only performed struct or pointer to struct type.
 func (v *Validate) ValidateStruct(obj interface{}) error {
 	if err := v.engine.Struct(obj); err != nil {
+		if _, ok := err.(validator.ValidationErrors); !ok {
+			return err
+		}
 		errStr := "{"
 		hasErr := false
 		for _, err := range err.(validator.ValidationErrors) {

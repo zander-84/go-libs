@@ -13,11 +13,11 @@ func TestValidate(t *testing.T) {
 	})
 
 	type User struct {
-		Name     string `form:"name" json:"name"  validate:"required,min=5"  comment:"name：用户名"`
+		UserName string `form:"name" json:"name"  validate:"required,min=5"  comment:"name：用户名"`
 		Password string `form:"password" json:"password" xml:"password" validate:"required,max=4" comment:"password:密码"`
 	}
 	u := User{
-		Name:     "z",
+		UserName: "z",
 		Password: "aaaaaaa",
 	}
 	//test1(v,u)
@@ -26,7 +26,7 @@ func TestValidate(t *testing.T) {
 
 func test2(v *Validate, u interface{}) {
 	if err := v.ValidateStruct(u); err != nil {
-		//fmt.Println(err.Error())
+		fmt.Println(err.Error())
 	}
 }
 func test1(v *Validate, u interface{}) {
