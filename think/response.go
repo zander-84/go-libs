@@ -4,7 +4,7 @@ import "fmt"
 
 var ResponseDebug = false
 
-var ResponseKeyError = "Error"
+var ResponseCode = "Code"
 var ResponseKeyMsg = "Msg"
 var ResponseKeyData = "Data"
 var ResponseKeySubCode = "SubCode"
@@ -58,7 +58,7 @@ func NewResponseBytesFromErr(err error, debug bool) []byte {
 	return []byte(NewResponseStringFromErr(err, debug))
 }
 
-var errNilString = fmt.Sprintf(`{"%s":%d,"%s":"%s","%s":"%s"}`, ResponseKeyError, CodeException, ResponseKeyMsg, CodeException.ToString(), ResponseKeyData, "")
+var errNilString = fmt.Sprintf(`{"%s":%d,"%s":"%s","%s":"%s"}`, ResponseCode, CodeException, ResponseKeyMsg, CodeException.ToString(), ResponseKeyData, "")
 
 func NewResponseStringFromErr(err error, debug bool) string {
 	if err == nil {
@@ -75,8 +75,8 @@ func NewResponseStringFromErr(err error, debug bool) string {
 	}
 
 	if IsErrBiz(err) {
-		return fmt.Sprintf(`{"%s":%d,"%s":"%s","%s":%d,"%s":"%s"}`, ResponseKeyError, code, ResponseKeyMsg, code.ToString(), ResponseKeySubCode, BizCode(err), ResponseKeyData, data)
+		return fmt.Sprintf(`{"%s":%d,"%s":"%s","%s":%d,"%s":"%s"}`, ResponseCode, code, ResponseKeyMsg, code.ToString(), ResponseKeySubCode, BizCode(err), ResponseKeyData, data)
 	} else {
-		return fmt.Sprintf(`{"%s":%d,"%s":"%s","%s":"%s"}`, ResponseKeyError, code, ResponseKeyMsg, code.ToString(), ResponseKeyData, data)
+		return fmt.Sprintf(`{"%s":%d,"%s":"%s","%s":"%s"}`, ResponseCode, code, ResponseKeyMsg, code.ToString(), ResponseKeyData, data)
 	}
 }

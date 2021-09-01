@@ -6,8 +6,8 @@ import (
 )
 
 type user2 struct {
-	UserName string `form:"name" json:"name"  validate:"required,min=5"  comment:"用户名"`
-	Password string `form:"password" json:"password" xml:"password" validate:"required,max=4" comment:"密码"`
+	UserName string `form:"name" json:"name"  validate:"required,min=5"  comment:"用户名2"`
+	Password string `form:"password" json:"password" xml:"password" validate:"required,max=4" comment:"密码2"`
 }
 
 // go test -v  -run TestValidate
@@ -18,9 +18,9 @@ func TestValidate(t *testing.T) {
 	})
 
 	type User struct {
-		UserName string `form:"name" json:"name"  validate:"required,min=5"  comment:"用户名"`
-		Password string `form:"password" json:"password" xml:"password" validate:"required,max=4" comment:"密码"`
-		U        user2  `form:"u" json:"u" xml:"u" validate:"required,dive,required" comment:"密码"`
+		UserName string   `form:"name" json:"name"  validate:"required,min=5"  comment:"用户名"`
+		Password string   `form:"password" json:"password" xml:"password" validate:"required,max=4" comment:"密码"`
+		U        *[]user2 `form:"u" json:"u" xml:"u" validate:"required,dive,required" comment:"密码"`
 	}
 
 	u := User{
