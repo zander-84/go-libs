@@ -2,6 +2,9 @@ package think
 
 import (
 	"errors"
+	"fmt"
+	"github.com/zander-84/go-libs/components/helper"
+	"strings"
 )
 
 type Error struct {
@@ -139,4 +142,19 @@ func Err2Code(err error) Code {
 		return CodeUndefined
 	}
 	return e.code
+}
+
+func BizErrToString(bizErr error) string {
+	return fmt.Sprintf("%d-%s", BizCode(bizErr), bizErr.Error())
+}
+
+// BizErrStringParse 解析业务错误
+func BizErrStringParse(bizErrString string) error {
+	arr := strings.Split(bizErrString, "-")
+	subCode := helper.GetConv().ShouldStoI(arr[0])
+	var errString string
+	arr1 := arr[1:]
+	errString = strings.Join(arr1, "-")
+
+	return ErrBiz(subCode, errors.New(errString))
 }
