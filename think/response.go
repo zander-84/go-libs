@@ -3,10 +3,11 @@ package think
 var ResponseDebug = false
 
 type Response struct {
-	Code  Code
-	Msg   string
-	Data  interface{}
-	Debug interface{} `json:",omitempty"`
+	Code    Code
+	SubCode int `json:",omitempty"`
+	Msg     string
+	Data    interface{}
+	Debug   interface{} `json:",omitempty"`
 }
 
 func (r *Response) Reset() {
@@ -25,10 +26,8 @@ func NewResponseFromErr(err error, debug bool) *Response {
 	}
 
 	if IsErrBiz(err) {
-		r.Data = []string{
-			BizCode(err),
-			err.Error(),
-		}
+		r.SubCode = BizCode(err)
+		r.Data = err.Error()
 	} else if code == CodeSystemSpaceError {
 		r.Data = nil
 	} else {
