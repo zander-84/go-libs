@@ -34,7 +34,7 @@ func NewResponseFromErr(err error, debug bool) *Response {
 		r.Data = err.Error()
 	}
 
-	if debug {
+	if debug && r.Data == nil {
 		r.Debug = err.Error()
 	}
 	return &r
