@@ -30,12 +30,12 @@ func NewResponseFromErr(err error, debug bool) *Response {
 		r.Data = err.Error()
 	} else if code == CodeSystemSpaceError {
 		r.Data = nil
+		if debug {
+			r.Debug = err.Error()
+		}
 	} else {
 		r.Data = err.Error()
 	}
 
-	if debug && r.Data == nil {
-		r.Debug = err.Error()
-	}
 	return &r
 }
