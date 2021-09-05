@@ -37,7 +37,7 @@ func (f Field) GetStr(key string) string {
 
 func (f Field) GetInt64(key string) int64 {
 	d := f.GetStr(key)
-	int10, err := strconv.ParseInt(d, 10, 32)
+	int10, err := strconv.ParseInt(d, 10, 64)
 	if err != nil {
 		return 0
 	}
