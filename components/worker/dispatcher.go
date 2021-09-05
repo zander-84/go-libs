@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"errors"
 	"github.com/zander-84/go-libs/think"
 	"sync"
@@ -15,8 +16,7 @@ type Dispatcher struct {
 	err        error
 	lock       sync.Mutex
 	once       int64
-	status     bool
-	tmp        int64
+	exit       chan struct{}
 }
 
 func NewDispatcher(conf Conf) *Dispatcher {
@@ -39,6 +39,7 @@ func (this *Dispatcher) Start() error {
 		this.worker = make([]*worker, this.conf.MaxWorkers)
 		this.workerPool = make(chan chan Job, this.conf.MaxWorkers)
 		this.jobChannel = make(chan Job, this.conf.MaxQueues)
+		this.exit = make(chan struct{}, 1)
 		this.run()
 		this.err = nil
 	}
@@ -46,9 +47,34 @@ func (this *Dispatcher) Start() error {
 	return this.err
 }
 
-func (this *Dispatcher) Stop() {
+func (this *Dispatcher) Stop(ctx context.Context) {
 	this.lock.Lock()
 	defer this.lock.Unlock()
+	done := ctx.Done()
+	if done == nil {
+		this.stop()
+		return
+	}
+	fin := make(chan struct{}, 1)
+	go func() {
+		this.stop()
+		fin <- struct{}{}
+	}()
+	select {
+	case <-done:
+		return
+	case <-fin:
+		return
+	}
+}
+func (this *Dispatcher) stop() {
+	if atomic.LoadInt64(&this.once) == 0 {
+		return
+	}
+
+	close(this.jobChannel)
+	<-this.exit
+
 	for _, w := range this.worker {
 		w.stop()
 	}
@@ -64,16 +90,20 @@ func (this *Dispatcher) run() {
 }
 
 func (this *Dispatcher) dispatch() {
-	for {
-		select {
-		case job := <-this.jobChannel:
-			jobChannel := <-this.workerPool
-			jobChannel <- job
-		}
+	for job := range this.jobChannel {
+		jobChannel := <-this.workerPool
+		jobChannel <- job
 	}
+	this.exit <- struct{}{}
 }
 
-func (this *Dispatcher) AddJob(job Job) error {
+func (this *Dispatcher) AddJob(job Job) (err error) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			err = errors.New("queue already exited")
+		}
+	}()
+
 	if this.conf.MaxQueues <= len(this.jobChannel) {
 		return errors.New("system busyness")
 	}
