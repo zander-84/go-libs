@@ -43,7 +43,7 @@ func (this *Robfig) Start() error {
 	return this.err
 }
 
-func (this *Robfig) Stop() {
+func (this *Robfig) Stop() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	if this.engine != nil {
@@ -54,6 +54,7 @@ func (this *Robfig) Stop() {
 	atomic.StoreInt64(&this.once, 0)
 	this.err = think.ErrInstanceUnDone
 	this.jobs = make(map[string]*cron2.Job)
+	return nil
 }
 
 func (this *Robfig) Restart(conf Conf) error {

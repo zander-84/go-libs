@@ -112,7 +112,7 @@ func (this *Gdb) Start() error {
 	return this.err
 }
 
-func (this *Gdb) Stop() {
+func (this *Gdb) Stop() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	if this.sqlDB != nil {
@@ -122,6 +122,7 @@ func (this *Gdb) Stop() {
 	this.err = think.ErrInstanceUnDone
 	this.engine = nil
 	this.sqlDB = nil
+	return nil
 }
 
 func (this *Gdb) Restart(conf Conf) error {

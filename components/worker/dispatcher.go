@@ -47,13 +47,13 @@ func (this *Dispatcher) Start() error {
 	return this.err
 }
 
-func (this *Dispatcher) Stop(ctx context.Context) {
+func (this *Dispatcher) Stop(ctx context.Context) error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	done := ctx.Done()
 	if done == nil {
 		this.stop()
-		return
+		return nil
 	}
 	fin := make(chan struct{}, 1)
 	go func() {
@@ -62,9 +62,9 @@ func (this *Dispatcher) Stop(ctx context.Context) {
 	}()
 	select {
 	case <-done:
-		return
+		return ctx.Err()
 	case <-fin:
-		return
+		return nil
 	}
 }
 func (this *Dispatcher) stop() {

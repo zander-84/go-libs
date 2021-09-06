@@ -35,7 +35,7 @@ func (this *Memory) Start() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
-	if atomic.CompareAndSwapInt64(&this.once,0,1){
+	if atomic.CompareAndSwapInt64(&this.once, 0, 1) {
 		this.engine = cache.New(time.Duration(this.conf.Expiration)*time.Minute, time.Duration(this.conf.CleanupInterval)*time.Minute)
 		this.err = nil
 	}
@@ -43,13 +43,14 @@ func (this *Memory) Start() error {
 	return this.err
 }
 
-func (this *Memory) Stop() {
+func (this *Memory) Stop() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
 	this.engine = nil
 	atomic.StoreInt64(&this.once, 0)
 	this.err = think.ErrInstanceUnDone
+	return nil
 }
 
 func (this *Memory) Restart(conf Conf) error {

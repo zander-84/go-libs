@@ -74,7 +74,7 @@ func (this *Etcd) Start() error {
 	return this.err
 }
 
-func (this *Etcd) Stop() {
+func (this *Etcd) Stop() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	if this.engine != nil {
@@ -83,6 +83,7 @@ func (this *Etcd) Stop() {
 	this.engine = nil
 	atomic.StoreInt64(&this.once, 0)
 	this.err = think.ErrInstanceUnDone
+	return nil
 }
 
 func (this *Etcd) Restart(conf Conf) error {

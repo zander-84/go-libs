@@ -130,13 +130,14 @@ func (this *ZLog) Start() error {
 	return this.err
 }
 
-func (this *ZLog) Stop() {
+func (this *ZLog) Stop() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
 	this.engine = nil
 	atomic.StoreInt64(&this.once, 0)
 	this.err = think.ErrInstanceUnDone
+	return nil
 }
 
 func (this *ZLog) Restart(conf Conf, writers []io.Writer) error {

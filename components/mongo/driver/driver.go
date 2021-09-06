@@ -71,7 +71,7 @@ func (this *Mongo) Start() error {
 	return this.err
 }
 
-func (this *Mongo) Stop() {
+func (this *Mongo) Stop() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	if this.engine != nil {
@@ -80,6 +80,7 @@ func (this *Mongo) Stop() {
 	this.engine = nil
 	atomic.StoreInt64(&this.once, 0)
 	this.err = think.ErrInstanceUnDone
+	return nil
 }
 
 func (this *Mongo) Restart(conf Conf) error {

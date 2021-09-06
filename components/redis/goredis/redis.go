@@ -38,7 +38,7 @@ func (this *Rdb) Start() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
-	if atomic.CompareAndSwapInt64(&this.once,0,1) {
+	if atomic.CompareAndSwapInt64(&this.once, 0, 1) {
 		this.engine = redis.NewClient(&redis.Options{
 			Addr:         this.conf.Addr,
 			Password:     this.conf.Password,
@@ -54,7 +54,7 @@ func (this *Rdb) Start() error {
 	return this.err
 }
 
-func (this *Rdb) Stop() {
+func (this *Rdb) Stop() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	if this.engine != nil {
@@ -63,6 +63,7 @@ func (this *Rdb) Stop() {
 	this.engine = nil
 	atomic.StoreInt64(&this.once, 0)
 	this.err = think.ErrInstanceUnDone
+	return nil
 }
 
 func (this *Rdb) Restart(conf Conf) error {
