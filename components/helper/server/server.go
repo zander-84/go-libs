@@ -66,27 +66,27 @@ func StopTimeout(stopTimeout time.Duration) Option {
 	}
 }
 
-func AppendAfterStopEvents(event func() error) Option {
+func AppendAfterStopEvents(events ...func() error) Option {
 	return func(o *options) {
-		o.afterStopEvents = append(o.afterStopEvents, event)
+		o.afterStopEvents = append(o.afterStopEvents, events...)
 	}
 }
 
-func AppendBeforeStopEvents(event func() error) Option {
+func AppendBeforeStopEvents(events ...func() error) Option {
 	return func(o *options) {
-		o.beforeStopEvents = append(o.beforeStopEvents, event)
+		o.beforeStopEvents = append(o.beforeStopEvents, events...)
 	}
 }
 
-func AppendAfterStartEvents(event func() error) Option {
+func AppendAfterStartEvents(events ...func() error) Option {
 	return func(o *options) {
-		o.afterStartEvents = append(o.afterStartEvents, event)
+		o.afterStartEvents = append(o.afterStartEvents, events...)
 	}
 }
 
-func AppendBeforeStartEvents(event func() error) Option {
+func AppendBeforeStartEvents(events ...func() error) Option {
 	return func(o *options) {
-		o.beforeStartEvents = append(o.beforeStartEvents, event)
+		o.beforeStartEvents = append(o.beforeStartEvents, events...)
 	}
 }
 
