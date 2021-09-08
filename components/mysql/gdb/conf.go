@@ -1,18 +1,17 @@
 package gdb
 
 type Conf struct {
-	Port                string
-	User                string
-	Pwd                 string
-	Host                string
-	Database            string
-	Charset             string
-	MaxIdleconns        int //MaxIdleconns>=MaxOpenconns
-	MaxOpenconns        int
-	ConnMaxLifetime     int
-	Debug               bool
-	TimeZone            string
-	RemoveSomeCallbacks bool
+	Port            string
+	User            string
+	Pwd             string
+	Host            string
+	Database        string
+	Charset         string
+	MaxIdleconns    int //MaxIdleconns>=MaxOpenconns
+	MaxOpenconns    int
+	ConnMaxLifetime int
+	Debug           bool
+	TimeZone        string
 }
 
 func (c *Conf) SetDefault() Conf {

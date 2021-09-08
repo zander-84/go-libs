@@ -101,13 +101,13 @@ func (this *Gdb) Start() error {
 		this.sqlDB.SetMaxOpenConns(this.conf.MaxOpenconns)
 		this.sqlDB.SetConnMaxLifetime(time.Duration(this.conf.ConnMaxLifetime) * time.Second)
 
-		if this.conf.RemoveSomeCallbacks {
-			_ = this.engine.Callback().Create().Remove("gorm:save_before_associations")
-			_ = this.engine.Callback().Create().Remove("gorm:force_reload_after_create")
-			_ = this.engine.Callback().Create().Remove("gorm:save_after_associations")
-			_ = this.engine.Callback().Update().Remove("gorm:save_before_associations")
-			_ = this.engine.Callback().Update().Remove("gorm:save_after_associations")
-		}
+		//if this.conf.RemoveSomeCallbacks {
+		//	_ = this.engine.Callback().Create().Remove("gorm:save_before_associations")
+		//	_ = this.engine.Callback().Create().Remove("gorm:force_reload_after_create")
+		//	_ = this.engine.Callback().Create().Remove("gorm:save_after_associations")
+		//	_ = this.engine.Callback().Update().Remove("gorm:save_before_associations")
+		//	_ = this.engine.Callback().Update().Remove("gorm:save_after_associations")
+		//}
 	}
 	return this.err
 }
