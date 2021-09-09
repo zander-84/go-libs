@@ -41,31 +41,35 @@ func NewUnique(prefix string, machine string, joinSymbol string) *Unique {
 func (u *Unique) IDWithTag(tag string) string {
 	u.lock.Lock()
 	currentTime := u.now()
+	currentTimeUnix := currentTime.Unix()
 	if u.lastTime == 0 {
-		u.lastTime = currentTime.Unix()
+		u.lastTime = currentTimeUnix
 	}
 
 	u.incrementID += 1
 	if u.incrementID > 999999 {
-		if u.lastTime >= currentTime.Unix() {
+		if u.lastTime >= currentTimeUnix { // 同秒内超过99w次 重置自增位，时间加1，否则自增加1
 			u.incrementID = 1
 			time.Sleep(1001 * time.Millisecond) //防止一秒破百万造成全局不唯一
 			currentTime = u.now()
-			u.lastTime = currentTime.Unix()
+			currentTimeUnix = currentTime.Unix()
+
+			u.lastTime = currentTimeUnix
 		} else {
 			u.incrementID += 1
 		}
-
-		if u.lastTime > u.now().Unix() { // 时间回滚下
-			u.incrementTimeID = u.incrementTimeID + 1
-			if u.incrementTimeID > 99 {
-				u.incrementTimeID = 10
-			}
-		}
-
-		u.lastTime = currentTime.Unix()
 	}
 
+	if u.lastTime > currentTimeUnix { // 时间回滚下 修改时间标志位 重置时间
+		u.incrementTimeID = u.incrementTimeID + 1
+		if u.incrementTimeID > 99 {
+			u.incrementTimeID = 10
+		}
+		currentTime = u.now()
+		currentTimeUnix = currentTime.Unix()
+		u.lastTime = currentTimeUnix
+	}
+	u.lastTime = currentTimeUnix
 	d := u.incrementID
 	dt := u.incrementTimeID
 	u.lock.Unlock()
