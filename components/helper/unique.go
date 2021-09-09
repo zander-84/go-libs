@@ -102,3 +102,19 @@ func (u *Unique) Md5TagID(tag string) string {
 	data := sha256.Sum256([]byte(u.FreeIDWithTag(tag)))
 	return hex.EncodeToString(data[:])
 }
+
+func (u *Unique) CharUpper(cnt int) string {
+	var res string
+	for i := 0; i < cnt; i++ {
+		res += fmt.Sprintf("%c", 65+rand.Intn(26))
+	}
+	return res
+}
+
+func (u *Unique) CharLower(cnt int) string {
+	var res string
+	for i := 0; i < cnt; i++ {
+		res += fmt.Sprintf("%c", 97+rand.Intn(26))
+	}
+	return res
+}
