@@ -39,10 +39,10 @@ func TestUnique(t *testing.T) {
 	time.Sleep(2 * time.Second)
 }
 
-//BenchmarkUnique-8   	 1397260	       850 ns/op
+//BenchmarkUnique-16    	  904142	      1280 ns/op
 func BenchmarkUnique(b *testing.B) {
 	u := NewUnique("LF", "A", "-")
 	for i := 0; i < b.N; i++ {
-		u.ID()
+		u.IDWithTag(u.CharLower(5))
 	}
 }
