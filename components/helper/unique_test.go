@@ -18,7 +18,7 @@ func TestUnique(t *testing.T) {
 		w.Add(1)
 		go func(i int) {
 			defer w.Done()
-			//_ = u.ID()
+			_ = u.ID()
 			u.ID()
 			u.ID()
 			u.ID()
@@ -37,16 +37,11 @@ func TestUnique(t *testing.T) {
 		}(i)
 	}
 	t2 := time.Now()
-	fmt.Println(t2.Unix() - t1.Unix())
-	fmt.Println("fgggg")
+	fmt.Println("duration:", t2.Unix()-t1.Unix())
 	w.Wait()
-	go func() {
-		fmt.Println(u.ID())
-	}()
-	l.Lock()
+	fmt.Println(u.ID())
 	fmt.Println(len(c))
-	l.Unlock()
-	time.Sleep(2 * time.Second)
+
 }
 
 //BenchmarkUnique-16    	  904142	      1280 ns/op
