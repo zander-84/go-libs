@@ -1,9 +1,11 @@
 package helper
 
 import (
+	rand2 "crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"math/rand"
 	"sync"
 	"sync/atomic"
@@ -21,6 +23,8 @@ type Unique struct {
 
 // NewUnique 适合吞吐在 100w之下 qps服务；  重复不可避免，还得通过其它持久化方式优化
 func NewUnique(prefix string, machine string, joinSymbol string) *Unique {
+	rand.Seed(time.Now().UnixNano())
+
 	u := new(Unique)
 	u.joinSymbol = joinSymbol
 	if prefix != "" {
@@ -30,37 +34,41 @@ func NewUnique(prefix string, machine string, joinSymbol string) *Unique {
 		u.prefixVal = u.prefixVal + machine + u.joinSymbol
 	}
 
-	u.incrementTimeID = uint64(rand.Intn(100))
-	rand.Seed(time.Now().UnixNano())
+	u.incrementTimeID = uint64(u.RealRandomInt64(100, 10))
 	return u
 }
 
 func (u *Unique) IDWithTag(tag string) string {
 	u.lock.Lock()
 	currentTime := u.now()
-	d := atomic.AddUint64(&u.incrementID, 1)
-	dt := atomic.LoadUint64(&u.incrementTimeID)
-	if atomic.LoadInt64(&u.lastTime) == 0 {
-		atomic.StoreInt64(&u.lastTime, currentTime.Unix())
-	} else {
-		if d > 999999 {
-			atomic.StoreUint64(&u.incrementID, 0)
-			d = atomic.AddUint64(&u.incrementID, 1)
-			if u.lastTime >= currentTime.Unix() {
-				time.Sleep(1001 * time.Millisecond) //防止一秒破百万造成全局不唯一
-				currentTime = u.now()
-			}
-			if u.lastTime > currentTime.Unix() { // 时间回滚下
-				if atomic.AddUint64(&u.incrementTimeID, 1) > 99 {
-					atomic.StoreUint64(&u.incrementTimeID, 0)
-				}
-				dt = atomic.LoadUint64(&u.incrementTimeID)
-			}
-			atomic.StoreInt64(&u.lastTime, currentTime.Unix())
-		}
+	if u.lastTime == 0 {
+		u.lastTime = currentTime.Unix()
 	}
-	u.lock.Unlock()
 
+	u.incrementID += 1
+	if u.incrementID > 999999 {
+		if u.lastTime >= currentTime.Unix() {
+			u.incrementID = 1
+			time.Sleep(1001 * time.Millisecond) //防止一秒破百万造成全局不唯一
+			currentTime = u.now()
+			u.lastTime = currentTime.Unix()
+		} else {
+			u.incrementID += 1
+		}
+
+		if u.lastTime > u.now().Unix() { // 时间回滚下
+			u.incrementTimeID = u.incrementTimeID + 1
+			if u.incrementTimeID > 99 {
+				u.incrementTimeID = 10
+			}
+		}
+
+		u.lastTime = currentTime.Unix()
+	}
+
+	d := u.incrementID
+	dt := u.incrementTimeID
+	u.lock.Unlock()
 	if tag != "" {
 		return u.prefixVal + tag + u.joinSymbol + fmt.Sprintf("%d%04d", dt, rand.Intn(10000)) + fmt.Sprintf("%06d", d) + u.joinSymbol + currentTime.Format("060102150405")
 	} else {
@@ -117,4 +125,22 @@ func (u *Unique) CharLower(cnt int) string {
 		res += fmt.Sprintf("%c", 97+rand.Intn(26))
 	}
 	return res
+}
+
+func (u *Unique) RealRandomString(cnt int) string {
+	var res string
+	for i := 0; i < cnt; i++ {
+		result, _ := rand2.Int(rand2.Reader, big.NewInt(10))
+		res += fmt.Sprintf("%d", result)
+	}
+	return res
+}
+
+func (u *Unique) RealRandomInt64(max int64, min int64) int64 {
+	result, _ := rand2.Int(rand2.Reader, big.NewInt(max))
+	data := result.Int64()
+	if data < 10 {
+		data = min + data
+	}
+	return data
 }

@@ -9,27 +9,37 @@ import (
 
 func TestUnique(t *testing.T) {
 	u := NewUnique("LF", "A", "-")
-	var c = make(map[string]bool, 0)
+	var c = make(map[string]int, 0)
 	var l sync.Mutex
 	t1 := time.Now()
+	u.ID()
+	w := sync.WaitGroup{}
 	for i := 0; i < 2000010; i++ {
+		w.Add(1)
 		go func(i int) {
-			_ = u.ID()
-			//dd:=u.ID()
-			//l.Lock()
-			//if _,ok:=c[dd];ok{
-			//	t.Error(dd+"存在")
-			//}else {
-			//	c[dd] = true
-			//}
-			//l.Unlock()
+			defer w.Done()
+			//_ = u.ID()
+			u.ID()
+			u.ID()
+			u.ID()
+			u.ID()
+			u.ID()
+			u.ID()
+			dd := u.ID()
+			l.Lock()
+			if vv, ok := c[dd]; ok {
+
+				t.Error(i, dd+"存在", vv)
+			} else {
+				c[dd] = i
+			}
+			l.Unlock()
 		}(i)
 	}
 	t2 := time.Now()
 	fmt.Println(t2.Unix() - t1.Unix())
 	fmt.Println("fgggg")
-
-	time.Sleep(4 * time.Second)
+	w.Wait()
 	go func() {
 		fmt.Println(u.ID())
 	}()
