@@ -4,12 +4,12 @@ import "sync"
 
 type ConcurrentMap struct {
 	lock sync.RWMutex
-	val  map[string]interface{}
+	val  map[interface{}]interface{}
 }
 
 func NewConcurrentMap() *ConcurrentMap {
 	data := new(ConcurrentMap)
-	data.val = make(map[string]interface{}, 0)
+	data.val = make(map[interface{}]interface{}, 0)
 	return data
 }
 
@@ -32,10 +32,10 @@ func (cm *ConcurrentMap) Exist(key string) bool {
 	return ok
 }
 
-func (cm *ConcurrentMap) GetMap() map[string]interface{} {
+func (cm *ConcurrentMap) GetMap() map[interface{}]interface{} {
 	cm.lock.RLock()
 	defer cm.lock.RUnlock()
-	res := make(map[string]interface{}, 0)
+	res := make(map[interface{}]interface{}, 0)
 	for k, v := range cm.val {
 		res[k] = v
 	}
