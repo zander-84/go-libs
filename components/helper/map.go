@@ -25,6 +25,23 @@ func (cm *ConcurrentMap) Get(key string) (interface{}, bool) {
 	return data, ok
 }
 
+func (cm *ConcurrentMap) Exist(key string) bool {
+	cm.lock.RLock()
+	defer cm.lock.RUnlock()
+	_, ok := cm.val[key]
+	return ok
+}
+
+func (cm *ConcurrentMap) GetMap() map[string]interface{} {
+	cm.lock.RLock()
+	defer cm.lock.RUnlock()
+	res := make(map[string]interface{}, 0)
+	for k, v := range cm.val {
+		res[k] = v
+	}
+	return res
+}
+
 func (cm *ConcurrentMap) ShouldGetString(key string) string {
 	data, ok := cm.Get(key)
 	if ok {
