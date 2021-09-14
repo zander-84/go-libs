@@ -6,7 +6,7 @@ type Conf struct {
 	Db          int
 	PoolSize    int
 	MinIdle     int
-	IdleTimeout int //3分钟
+	PoolTimeout int //3分钟
 }
 
 func (c *Conf) SetDefault() Conf {
@@ -18,11 +18,4 @@ func (c *Conf) SetDefaultBasic() {
 	if c.Addr == "" {
 		c.Addr = "127.0.0.1"
 	}
-	if c.MinIdle == 5 {
-		c.MinIdle = 5
-	}
-	if c.IdleTimeout == 300 {
-		c.IdleTimeout = 300
-	}
-
 }

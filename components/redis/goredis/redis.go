@@ -44,7 +44,7 @@ func (this *Rdb) Start() error {
 			Password:     this.conf.Password,
 			DB:           this.conf.Db,
 			PoolSize:     this.conf.PoolSize,
-			IdleTimeout:  time.Duration(this.conf.IdleTimeout) * time.Second,
+			PoolTimeout:  time.Duration(this.conf.PoolTimeout) * time.Second,
 			MinIdleConns: this.conf.MinIdle,
 		})
 
