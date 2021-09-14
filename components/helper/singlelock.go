@@ -38,7 +38,7 @@ func NewMemoryLock() Lock {
 			select {
 			case <-l.exit:
 				return
-			case <-time.After(time.Second * 5):
+			case <-time.After(time.Second * 60 * 30):
 				l.Release()
 			}
 		}

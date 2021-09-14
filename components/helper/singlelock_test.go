@@ -21,13 +21,13 @@ func TestNewLock(t *testing.T) {
 		}
 	}()
 
-	for i := 0; i < 100000; i++ {
+	for i := 0; i < 20000000; i++ {
 		w.Add(1)
 		go func(i int) {
 			defer w.Done()
 
 			lock.Lock(context.Background(), fmt.Sprintf("%d", i), fmt.Sprintf("%d", i), time.Second*2)
-			//lock.UnLock(context.Background(), fmt.Sprintf("%d", i), fmt.Sprintf("%d", i))
+			lock.UnLock(context.Background(), fmt.Sprintf("%d", i), fmt.Sprintf("%d", i))
 
 			if err := lock.Lock(context.Background(), fmt.Sprintf("%d", 1), fmt.Sprintf("%d", 1), time.Second*2); err == nil {
 				fmt.Println("lock at:", i, " ", defaultTime.FormatHyphenFromNow())
