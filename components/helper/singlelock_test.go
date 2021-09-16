@@ -58,7 +58,9 @@ func TestNewLock(t *testing.T) {
 //BenchmarkNewLock-16    	 1000000	      1609 ns/op
 func BenchmarkNewLock(b *testing.B) {
 	lock := NewMemoryLock()
-	for i := 0; i < b.N; i++ {
-		lock.Lock(context.Background(), fmt.Sprintf("%d", i), fmt.Sprintf("%d", i), time.Second*2)
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			lock.Lock(context.Background(), fmt.Sprintf("%d", 1), fmt.Sprintf("%d", 1), time.Second*2)
+		}
+	})
 }
