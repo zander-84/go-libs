@@ -16,12 +16,11 @@ func TestRdb(t *testing.T) {
 	argList := flag.Args()
 	db, _ := strconv.Atoi(argList[2])
 	rdb := NewRdb(Conf{
-		Addr:        argList[0],
-		Password:    argList[1],
-		Db:          db,
-		PoolSize:    10,
-		MinIdle:     5,
-		IdleTimeout: 300,
+		Addr:     argList[0],
+		Password: argList[1],
+		Db:       db,
+		PoolSize: 10,
+		MinIdle:  5,
 	})
 	if err := rdb.Start(); err != nil {
 		t.Fatal("start redis err: ", err.Error())
