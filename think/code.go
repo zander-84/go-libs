@@ -83,7 +83,7 @@ func (c Code) ToString() string {
 	case CodeParamError:
 		return "参数错误"
 	case CodeNotFound:
-		return "页面丢失"
+		return "404"
 	case CodeRepeat:
 		return "重复操作"
 	case CodeAlterError:

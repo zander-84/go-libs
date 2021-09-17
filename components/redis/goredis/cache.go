@@ -31,6 +31,15 @@ func (this *Rdb) Set(ctx context.Context, key string, value interface{}, ttl tim
 	return this.engine.Set(ctx, key, b, ttl).Err()
 }
 
+func (this *Rdb) SetNX(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
+	b, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+
+	return this.engine.SetNX(ctx, key, b, ttl).Err()
+}
+
 func (this *Rdb) GetOrSet(ctx context.Context, key string, ptrValue interface{}, ttl time.Duration, f func() (interface{}, error)) error {
 	if err := this.Get(ctx, key, ptrValue); err != nil {
 		if !think.IsErrNotFound(err) {
@@ -41,6 +50,26 @@ func (this *Rdb) GetOrSet(ctx context.Context, key string, ptrValue interface{},
 			return fe
 		} else {
 			if err := this.Set(ctx, key, fv, ttl); err != nil {
+				return err
+			}
+			return this.Get(ctx, key, ptrValue)
+		}
+	}
+
+	return nil
+}
+
+// GetOrSetNX 后台编辑操作必须更val
+func (this *Rdb) GetOrSetNX(ctx context.Context, key string, ptrValue interface{}, ttl time.Duration, f func() (interface{}, error)) error {
+	if err := this.Get(ctx, key, ptrValue); err != nil {
+		if !think.IsErrNotFound(err) {
+			return err
+		}
+
+		if fv, fe := this.singleflight.Do(key, f); fe != nil {
+			return fe
+		} else {
+			if err := this.SetNX(ctx, key, fv, ttl); err != nil {
 				return err
 			}
 			return this.Get(ctx, key, ptrValue)

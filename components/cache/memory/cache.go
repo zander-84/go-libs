@@ -48,6 +48,9 @@ func (this *Memory) Set(ctx context.Context, key string, value interface{}, ttl 
 	return this.err
 }
 
+func (this *Memory) SetNX(ctx context.Context, key string, value interface{}, ttl time.Duration) (err error) {
+	return errors.New("todo")
+}
 func (this *Memory) GetOrSet(ctx context.Context, key string, recPtr interface{}, ttl time.Duration, f func() (value interface{}, err error)) (err error) {
 	defer func() {
 		if rerr := recover(); rerr != nil {
@@ -72,6 +75,10 @@ func (this *Memory) GetOrSet(ctx context.Context, key string, recPtr interface{}
 		err = this.Get(ctx, key, recPtr)
 	}
 	return err
+}
+
+func (this *Memory) GetOrSetNX(ctx context.Context, key string, recPtr interface{}, ttl time.Duration, f func() (value interface{}, err error)) (err error) {
+	return errors.New("todo")
 }
 
 func (this *Memory) Delete(ctx context.Context, keys ...string) error {
