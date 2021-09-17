@@ -2,11 +2,8 @@ package cache
 
 import (
 	"context"
-	"errors"
 	"time"
 )
-
-var ErrDataNil = errors.New("err data nil")
 
 type Cache interface {
 	Exists(ctx context.Context, key ...string) (bool, error)
@@ -19,7 +16,6 @@ type Cache interface {
 	Delete(ctx context.Context, key ...string) error
 
 	GetOrSet(ctx context.Context, key string, recPtr interface{}, expires time.Duration, f func() (value interface{}, err error)) error
-	GetOrSetConsistent(ctx context.Context, key string, recPtr interface{}, expires time.Duration, f func() (value interface{}, err error)) error
 
 	FlushDB(ctx context.Context) error
 }

@@ -132,7 +132,7 @@ func testRdbGetOrSet(t *testing.T, rdb *Rdb) {
 		Name string
 	}
 	get := val2{}
-	if err := rdb.GetOrSetConsistent(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
+	if err := rdb.GetOrSet(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
 		return val, nil
 	}); err != nil {
 		t.Fatal("Exists  err: ", err.Error())

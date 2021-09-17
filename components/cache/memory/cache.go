@@ -77,10 +77,6 @@ func (this *Memory) GetOrSet(ctx context.Context, key string, recPtr interface{}
 	return err
 }
 
-func (this *Memory) GetOrSetConsistency(ctx context.Context, key string, recPtr interface{}, ttl time.Duration, f func() (value interface{}, err error)) (err error) {
-	return errors.New("todo")
-}
-
 func (this *Memory) Delete(ctx context.Context, keys ...string) error {
 	for _, key := range keys {
 		this.engine.Delete(key)
