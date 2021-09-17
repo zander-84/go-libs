@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// go test -v  -run TestRdb  -args 172.16.86.150:6379  123456 1
+// go test -v  -run TestRdb  -args 172.16.86.160:6379  123456 1
 func TestRdb(t *testing.T) {
 	if !flag.Parsed() {
 		flag.Parse()
@@ -26,13 +26,13 @@ func TestRdb(t *testing.T) {
 		t.Fatal("start redis err: ", err.Error())
 	}
 
-	testRdbString(t, rdb)
+	//testRdbString(t, rdb)
 	//testRdbInt(t, rdb)
 	//testRdbStruct(t, rdb)
 	//testRdbMap(t, rdb)
 	//testRdbDel(t, rdb)
 	//testRdbExists(t, rdb)
-	//testRdbGetOrSet(t, rdb)
+	testRdbGetOrSet(t, rdb)
 	//testRdbGetOrSetFast(t, rdb)
 	//testRdbFlushDB(t, rdb)
 
@@ -123,19 +123,26 @@ func testRdbDel(t *testing.T, rdb *Rdb) {
 
 func testRdbGetOrSet(t *testing.T, rdb *Rdb) {
 	key := "str"
-	val := "aaaa"
-	get := ""
-
-	if err := rdb.GetOrSet(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
+	val := struct {
+		Name string
+	}{
+		Name: "zander",
+	}
+	type val2 struct {
+		Name string
+	}
+	get := val2{}
+	if err := rdb.GetOrSetConsistent(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
 		return val, nil
 	}); err != nil {
 		t.Fatal("Exists  err: ", err.Error())
 	}
 
-	if val != get {
+	if val.Name != get.Name {
 		t.Fatal("set get string err: ", get)
 	}
 }
+
 func testRdbExists(t *testing.T, rdb *Rdb) {
 	key := "maps"
 	if ok, err := rdb.Exists(context.Background(), key, key); err != nil {
