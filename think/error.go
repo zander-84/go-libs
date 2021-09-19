@@ -106,6 +106,17 @@ func ErrSystemSpace(err error) error {
 	return &Error{code: CodeSystemSpaceError, err: err}
 }
 
+func IsErrSystemSpace(err error) bool {
+	e, ok := err.(*Error)
+	if ok == false {
+		return false
+	}
+	if e.code == CodeSystemSpaceError {
+		return true
+	}
+	return false
+}
+
 // ErrAlter 简单错误 提示
 func ErrAlter(err error) error {
 	return &Error{code: CodeAlterError, err: err}
