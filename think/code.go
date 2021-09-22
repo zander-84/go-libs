@@ -9,6 +9,8 @@ import (
 type Code uint32
 
 const (
+	MinCode Code = 100000
+
 	CodeSuccess Code = 100200 // 成功
 
 	CodeSuccessAction Code = 100201 // 成功行为
@@ -45,6 +47,8 @@ const (
 
 	CodeTypeError Code = 104500 // 类型错误
 
+	CodeUnavailable Code = 105500 // 不可达
+
 )
 
 func (c Code) HttpCode() int {
@@ -64,7 +68,7 @@ func (c Code) HttpCode() int {
 	case CodeTooManyRequests:
 		return http.StatusTooManyRequests
 
-	case CodeSystemSpaceError, CodeIgnore, CodeUndefined, CodeException, CodeTypeError:
+	case CodeSystemSpaceError, CodeIgnore, CodeUndefined, CodeException, CodeTypeError, CodeUnavailable:
 		return http.StatusInternalServerError
 
 	case CodeTimeOut:
@@ -112,6 +116,8 @@ func (c Code) ToString() string {
 		return "异常"
 	case CodeTypeError:
 		return "错误类型"
+	case CodeUnavailable:
+		return "不可达"
 	default:
 		return fmt.Sprintf("未定义： %d", c)
 	}

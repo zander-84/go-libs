@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/zander-84/go-libs/components/helper"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"strings"
 )
 
@@ -168,4 +170,21 @@ func BizErrStringParse(bizErrString string) error {
 	errString = strings.Join(arr1, "-")
 
 	return ErrBiz(subCode, errors.New(errString))
+}
+
+func ErrFromGrpc(err error) error {
+	s, ok := status.FromError(err)
+	if !ok {
+		return ErrSystemSpace(err)
+	}
+
+	if s.Code() == codes.Unavailable {
+		return &Error{code: CodeUnavailable, err: errors.New(CodeUnavailable.ToString())}
+	}
+
+	if uint32(s.Code()) < uint32(MinCode) {
+		return ErrSystemSpace(err)
+	} else {
+		return &Error{code: Code(s.Code()), err: errors.New(s.Message())}
+	}
 }
