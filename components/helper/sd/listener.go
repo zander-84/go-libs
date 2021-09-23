@@ -17,6 +17,8 @@ type Listener struct {
 	ctx             context.Context
 	cancelFunc      context.CancelFunc
 	spiltAddrWeight string
+	err             error
+	errLock         sync.RWMutex
 }
 
 // NewListener name 在etcd中是prefix key
@@ -91,8 +93,6 @@ func (l *Listener) Remove(addr string) error {
 }
 
 func (l *Listener) GetVersion() uint64 {
-	l.lock.RLock()
-	defer l.lock.RUnlock()
 	return atomic.LoadUint64(&l.version)
 }
 
@@ -128,6 +128,24 @@ func (l *Listener) GetAddrWithWeight(rowAddr string) (addr string, weight int) {
 		weight = 1
 	}
 	return addr, weight
+}
+
+func (l *Listener) RecordErr(err error) {
+	l.errLock.Lock()
+	defer l.errLock.Unlock()
+	l.err = err
+}
+
+func (l *Listener) CleanErr() {
+	l.errLock.Lock()
+	defer l.errLock.Unlock()
+	l.err = nil
+}
+
+func (l *Listener) Err() error {
+	l.errLock.RUnlock()
+	defer l.errLock.RUnlock()
+	return l.err
 }
 
 func (l *Listener) Println() {

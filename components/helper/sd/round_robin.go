@@ -49,6 +49,12 @@ func (rr *roundRobin) Next() (string, error) {
 	}
 	rr.lock.RLock()
 	defer rr.lock.RUnlock()
+
+	listenErr := rr.listener.Err()
+	if listenErr != nil {
+		return "", listenErr
+	}
+
 	if len(rr.nodes) <= 0 {
 		return "", ErrNoNode
 	}

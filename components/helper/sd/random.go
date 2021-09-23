@@ -44,6 +44,12 @@ func (rd *random) Next() (string, error) {
 	}
 	rd.lock.RLock()
 	defer rd.lock.RUnlock()
+
+	listenErr := rd.listener.Err()
+	if listenErr != nil {
+		return "", listenErr
+	}
+
 	if len(rd.nodes) <= 0 {
 		return "", ErrNoNode
 	}

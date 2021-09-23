@@ -87,6 +87,12 @@ func (ch *consistentHash) Get(uid string) (string, error) {
 	}
 	ch.lock.RLock()
 	defer ch.lock.RUnlock()
+
+	listenErr := ch.listener.Err()
+	if listenErr != nil {
+		return "", listenErr
+	}
+
 	if len(ch.hashMap) <= 0 {
 		return "", ErrNoNode
 	}

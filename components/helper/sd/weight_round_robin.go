@@ -66,6 +66,10 @@ func (wrr *weightRoundRobin) Next() (string, error) {
 	wrr.lock.Lock()
 	defer wrr.lock.Unlock()
 
+	listenErr := wrr.listener.Err()
+	if listenErr != nil {
+		return "", listenErr
+	}
 	if len(wrr.nodes) <= 0 {
 		return "", ErrNoNode
 	}
