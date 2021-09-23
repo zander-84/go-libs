@@ -39,6 +39,8 @@ func (this *Etcd) delete(key string, opts ...clientv3.OpOption) (*clientv3.Delet
 	defer cancel()
 	return this.engine.Delete(ctx, key, opts...)
 }
+
+// withAlive 会产生warning ctx cancel
 func (this *Etcd) withAlive(ctx context.Context, key string, val string, ttl int64) error {
 	leaseResp, err := this.engine.Grant(ctx, ttl)
 	if err != nil {
