@@ -41,6 +41,11 @@ func TestRandom(t *testing.T) {
 			} else {
 				l.CleanErr()
 			}
+			if d, err := rr.Next(); err != nil {
+				t.Error(err.Error())
+			} else if d == "" {
+				t.Error("空数据")
+			}
 		}(i)
 	}
 
