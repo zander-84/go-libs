@@ -143,7 +143,7 @@ func (l *Listener) CleanErr() {
 }
 
 func (l *Listener) Err() error {
-	l.errLock.RUnlock()
+	l.errLock.RLock()
 	defer l.errLock.RUnlock()
 	return l.err
 }
