@@ -8,21 +8,8 @@ import (
 )
 
 func (this *Etcd) RegisterServer(s *Server) error {
-	go func() {
-		for {
-			select {
-			case <-s.Context().Done():
-				return
-			case <-time.After(s.TTlSecond()):
-				if getResp, err := this.get(s.Key()); err == nil && getResp.Count == 0 {
-					_ = this.withAlive(s.Context(), s.Key(), s.Val(), s.TTl())
-				}
-			}
-		}
-	}()
-	return nil
+	return this.withAlive(s.Context(), s.Key(), s.Val(), s.TTl())
 }
-
 func (this *Etcd) Deregister(s *Server) error {
 	s.Deregister()
 	_, err := this.delete(s.Key(), clientv3.WithIgnoreLease())
@@ -40,9 +27,9 @@ func (this *Etcd) delete(key string, opts ...clientv3.OpOption) (*clientv3.Delet
 	return this.engine.Delete(ctx, key, opts...)
 }
 
-// withAlive 会产生warning ctx cancel
 func (this *Etcd) withAlive(ctx context.Context, key string, val string, ttl int64) error {
 	leaseResp, err := this.engine.Grant(ctx, ttl)
+
 	if err != nil {
 		return err
 	}
@@ -58,12 +45,17 @@ func (this *Etcd) withAlive(ctx context.Context, key string, val string, ttl int
 
 	go func() {
 		for {
-			r, ok := <-ch
-			if ok {
-				if r == nil {
+			select {
+			case r, ok := <-ch:
+				// avoid dead loop when channel was closed
+				if ok {
+					if r == nil {
+						return
+					}
+				} else {
 					return
 				}
-			} else {
+			case <-ctx.Done():
 				return
 			}
 		}
