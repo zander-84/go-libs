@@ -1,8 +1,8 @@
 package sd
 
 import (
+	"sync"
 	"testing"
-	"time"
 )
 
 func TestWeightRoundRobin(t *testing.T) {
@@ -14,8 +14,14 @@ func TestWeightRoundRobin(t *testing.T) {
 	})
 	rr := NewWeightRoundRobin(l, true)
 
+	w := sync.WaitGroup{}
+
 	for i := 0; i < 10000000; i++ {
+		w.Add(1)
+
 		go func(i int) {
+			defer w.Done()
+
 			if _, err := rr.Next(); err != nil {
 				t.Log(err.Error())
 			}
@@ -24,7 +30,7 @@ func TestWeightRoundRobin(t *testing.T) {
 	//go func() {
 	//	l.Remove("127.0.0.1:8082")
 	//}()
-	time.Sleep(5 * time.Second)
+	w.Wait()
 	t.Log(rr.Used())
 }
 
