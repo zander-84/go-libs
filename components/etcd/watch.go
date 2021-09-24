@@ -17,12 +17,12 @@ func (this *Etcd) Deregister(s *Server) error {
 }
 
 func (this *Etcd) get(key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 	return this.engine.Get(ctx, key, opts...)
 }
 func (this *Etcd) delete(key string, opts ...clientv3.OpOption) (*clientv3.DeleteResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 	return this.engine.Delete(ctx, key, opts...)
 }
@@ -92,7 +92,7 @@ func (this *Etcd) getEntries(listener Listener, tag int) (map[string]int, error)
 	return entries, err
 }
 
-func (this *Etcd) Watch(listener Listener) error {
+func (this *Etcd) SetEntries(listener Listener) error {
 	if entries, err := this.GetEntries(listener); err == nil {
 		if err := listener.Set(entries); err != nil {
 			listener.RecordErr(err)
@@ -103,18 +103,19 @@ func (this *Etcd) Watch(listener Listener) error {
 		listener.RecordErr(err)
 		return err
 	}
+	return nil
+}
+
+func (this *Etcd) Watch(listener Listener) error {
+	err := this.SetEntries(listener)
 
 	go func() {
 		rch := this.engine.Watch(listener.Context(), listener.Name(), clientv3.WithPrefix())
+		_ = this.SetEntries(listener)
+
 		for _ = range rch {
-			if entries, err := this.GetEntries(listener); err == nil {
-				if err := listener.Set(entries); err != nil {
-					listener.RecordErr(err)
-				}
-				listener.CleanErr()
-			} else {
-				listener.RecordErr(err)
-			}
+			_ = this.SetEntries(listener)
+
 			//for _, ev := range n.Events {
 			//	rowAddr := strings.TrimPrefix(string(ev.Kv.Key), listener.Name())
 			//	addr, weight := listener.GetAddrWithWeight(rowAddr)
@@ -130,7 +131,7 @@ func (this *Etcd) Watch(listener Listener) error {
 			//}
 		}
 	}()
-	return nil
+	return err
 }
 
 type Listener interface {
