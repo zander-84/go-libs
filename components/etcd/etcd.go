@@ -70,10 +70,17 @@ func (this *Etcd) Start() error {
 			LogConfig:            nil,
 			PermitWithoutStream:  false,
 		})
+		this.err = this.Ping()
+
 	}
 	return this.err
 }
-
+func (this *Etcd) Ping() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, err := this.engine.Get(ctx, "/ping")
+	return err
+}
 func (this *Etcd) Stop() error {
 	this.lock.Lock()
 	defer this.lock.Unlock()

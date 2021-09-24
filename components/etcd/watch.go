@@ -17,12 +17,12 @@ func (this *Etcd) Deregister(s *Server) error {
 }
 
 func (this *Etcd) get(key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	return this.engine.Get(ctx, key, opts...)
 }
 func (this *Etcd) delete(key string, opts ...clientv3.OpOption) (*clientv3.DeleteResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	return this.engine.Delete(ctx, key, opts...)
 }
@@ -72,13 +72,13 @@ func (this *Etcd) GetEntries(listener Listener) (map[string]int, error) {
 }
 
 func (this *Etcd) getEntries(listener Listener, tag int) (map[string]int, error) {
-	resp, err := this.engine.Get(this.context, listener.Name(), clientv3.WithPrefix())
+	resp, err := this.get(listener.Name(), clientv3.WithPrefix())
 	if err != nil {
 		tag += 1
 		if tag > 5 {
 			return nil, err
 		} else {
-			time.Sleep(time.Millisecond)
+			time.Sleep(time.Second)
 			return this.getEntries(listener, tag)
 		}
 	}
