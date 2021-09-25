@@ -111,8 +111,6 @@ func (this *Etcd) Watch(listener Listener) error {
 
 	go func() {
 		rch := this.engine.Watch(listener.Context(), listener.Name(), clientv3.WithPrefix())
-		_ = this.SetEntries(listener)
-
 		for _ = range rch {
 			_ = this.SetEntries(listener)
 
