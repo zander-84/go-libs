@@ -112,7 +112,7 @@ func (l *Listener) Get() (map[string]int, []string, uint64) {
 
 // GetAddrWithWeight rowAddr=ip:port-weight
 func (l *Listener) GetAddrWithWeight(rowAddr string) (addr string, weight int) {
-	tmpArr := strings.Split(rowAddr, "-")
+	tmpArr := strings.Split(rowAddr, l.spiltAddrWeight)
 	addr = tmpArr[0]
 
 	if len(tmpArr) > 1 {
