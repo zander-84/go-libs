@@ -37,7 +37,7 @@ func NewRedisMasterSalve(master *Rdb, salves []*Rdb, typ Typ) *RedisMasterSalve 
 	d.nodes = append(d.nodes, master)
 	d.nodes = append(d.nodes, salves...)
 
-	nodeListener := sd.NewListener("nodes", "")
+	nodeListener := sd.NewListener("nodes")
 	nodesTmp := map[string]int{}
 	for i := 0; i < len(d.nodes); i++ {
 		weight := 2
@@ -53,7 +53,7 @@ func NewRedisMasterSalve(master *Rdb, salves []*Rdb, typ Typ) *RedisMasterSalve 
 	for i := 0; i < len(salves); i++ {
 		salvesTmp[fmt.Sprintf("%d", i)] = 1
 	}
-	salveListener := sd.NewListener("slaves", "")
+	salveListener := sd.NewListener("slaves")
 	salveListener.Set(salvesTmp)
 	d.salveBalancer = sd.NewBalancer(salveListener, false, sd.RoundRobin)
 	return d

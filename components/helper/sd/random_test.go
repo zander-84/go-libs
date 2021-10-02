@@ -7,7 +7,7 @@ import (
 )
 
 func TestRandom(t *testing.T) {
-	l := NewListener("test", "")
+	l := NewListener("test")
 	l.Set(map[string]int{
 		"127.0.0.1:8081": 1,
 		"127.0.0.1:8082": 1,
@@ -56,7 +56,7 @@ func TestRandom(t *testing.T) {
 //BenchmarkRandom-8   	 9791858	       123 ns/op  保存数据
 //BenchmarkRandom-8   	18463314	        63.7 ns/op  不存数据
 func BenchmarkRandom(b *testing.B) {
-	l := NewListener("test", "")
+	l := NewListener("test")
 	l.Set(map[string]int{
 		"127.0.0.1:8081": 1,
 		"127.0.0.1:8082": 1,

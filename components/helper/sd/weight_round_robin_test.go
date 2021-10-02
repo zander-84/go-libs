@@ -6,7 +6,7 @@ import (
 )
 
 func TestWeightRoundRobin(t *testing.T) {
-	l := NewListener("test", "")
+	l := NewListener("test")
 	l.Set(map[string]int{
 		"127.0.0.1:8081": 1,
 		"127.0.0.1:8082": 2,
@@ -37,7 +37,7 @@ func TestWeightRoundRobin(t *testing.T) {
 //BenchmarkRoundRobin-8   	11099640	       115 ns/op  保存数据
 //BenchmarkRoundRobin-8   	20444817	        58.2 ns/op  不存数据
 func BenchmarkWeightRoundRobin(b *testing.B) {
-	l := NewListener("test", "")
+	l := NewListener("test")
 	l.Set(map[string]int{
 		"127.0.0.1:8081": 1,
 		"127.0.0.1:8082": 1,

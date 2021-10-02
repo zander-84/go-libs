@@ -7,7 +7,7 @@ import (
 )
 
 func TestConsistentHash(t *testing.T) {
-	l := NewListener("test", "")
+	l := NewListener("test")
 	l.Set(map[string]int{
 		"127.0.0.1:8081": 1,
 		"127.0.0.1:8082": 2,
@@ -37,7 +37,7 @@ func TestConsistentHash(t *testing.T) {
 //BenchmarkConsistentHash-8   2638166	456 ns/op  保存数据
 //BenchmarkRoundRobin-8   	  2944742	        393 ns/op  不存数据
 func BenchmarkConsistentHash(b *testing.B) {
-	l := NewListener("test", "")
+	l := NewListener("test")
 	l.Set(map[string]int{
 		"127.0.0.1:8081": 1,
 		"127.0.0.1:8082": 1,
