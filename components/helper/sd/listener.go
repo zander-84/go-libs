@@ -10,27 +10,22 @@ import (
 )
 
 type Listener struct {
-	name            string
-	data            map[string]int
-	version         uint64
-	lock            sync.RWMutex
-	ctx             context.Context
-	cancelFunc      context.CancelFunc
-	spiltAddrWeight string
-	err             error
-	errLock         sync.RWMutex
+	name       string
+	data       map[string]int
+	version    uint64
+	lock       sync.RWMutex
+	ctx        context.Context
+	cancelFunc context.CancelFunc
+	err        error
+	errLock    sync.RWMutex
 }
 
 // NewListener name 在etcd中是prefix key
-func NewListener(name string, spiltAddrWeight string) *Listener {
+func NewListener(name string) *Listener {
 	l := new(Listener)
 	l.version = 0
 	l.data = make(map[string]int)
 	l.name = name
-	l.spiltAddrWeight = spiltAddrWeight
-	if l.spiltAddrWeight == "" {
-		l.spiltAddrWeight = "-"
-	}
 
 	l.ctx, l.cancelFunc = context.WithCancel(context.Background())
 	return l
@@ -111,8 +106,11 @@ func (l *Listener) Get() (map[string]int, []string, uint64) {
 }
 
 // GetAddrWithWeight rowAddr=ip:port-weight
-func (l *Listener) GetAddrWithWeight(rowAddr string) (addr string, weight int) {
-	tmpArr := strings.Split(rowAddr, l.spiltAddrWeight)
+func (l *Listener) GetAddrWithWeight(rowAddr string, spiltAddrWeight string) (addr string, weight int) {
+	if spiltAddrWeight == "" {
+		spiltAddrWeight = "-"
+	}
+	tmpArr := strings.Split(rowAddr, spiltAddrWeight)
 	addr = tmpArr[0]
 
 	if len(tmpArr) > 1 {
