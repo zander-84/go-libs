@@ -19,3 +19,9 @@ type Cache interface {
 
 	FlushDB(ctx context.Context) error
 }
+
+// MsCache master slaves cache
+type MsCache interface {
+	Cache
+	GetFromMaster(ctx context.Context, key string, recPtr interface{}) error
+}

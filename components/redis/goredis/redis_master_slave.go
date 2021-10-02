@@ -86,6 +86,10 @@ func (this *RedisMasterSalve) Get(ctx context.Context, key string, toPtr interfa
 	return this.getRdb().Get(ctx, key, toPtr)
 }
 
+func (this *RedisMasterSalve) GetFromMaster(ctx context.Context, key string, recPtr interface{}) error {
+	return this.master.Get(ctx, key, recPtr)
+}
+
 func (this *RedisMasterSalve) Set(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
 	return this.master.Set(ctx, key, value, ttl)
 }
