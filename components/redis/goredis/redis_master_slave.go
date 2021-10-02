@@ -94,6 +94,10 @@ func (this *RedisMasterSalve) GetFromMaster(ctx context.Context, key string, rec
 	return this.master.Get(ctx, key, recPtr)
 }
 
+func (this *RedisMasterSalve) GetFromSlave(ctx context.Context, key string, recPtr interface{}) error {
+	return this.GetSalve().Get(ctx, key, recPtr)
+}
+
 func (this *RedisMasterSalve) Set(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
 	return this.master.Set(ctx, key, value, ttl)
 }

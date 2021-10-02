@@ -24,4 +24,5 @@ type Cache interface {
 type MsCache interface {
 	Cache
 	GetFromMaster(ctx context.Context, key string, recPtr interface{}) error
+	GetFromSlave(ctx context.Context, key string, recPtr interface{}) error
 }
