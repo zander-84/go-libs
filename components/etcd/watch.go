@@ -86,7 +86,7 @@ func (this *Etcd) getEntries(listener Listener, tag int) (map[string]int, error)
 	entries := make(map[string]int)
 	for _, kv := range resp.Kvs {
 		rowAddr := strings.TrimPrefix(string(kv.Key), listener.Name())
-		addr, weight := listener.GetAddrWithWeight(rowAddr)
+		addr, weight := listener.GetAddrWithWeight(rowAddr, "-")
 		entries[addr] = weight
 	}
 	return entries, err
@@ -116,7 +116,7 @@ func (this *Etcd) Watch(listener Listener) error {
 
 			//for _, ev := range n.Events {
 			//	rowAddr := strings.TrimPrefix(string(ev.Kv.Key), listener.Name())
-			//	addr, weight := listener.GetAddrWithWeight(rowAddr)
+			//	addr, weight := listener.GetAddrWithWeight(rowAddr,"-")
 			//
 			//	switch ev.Type {
 			//	case mvccpb.PUT:
@@ -134,7 +134,7 @@ func (this *Etcd) Watch(listener Listener) error {
 
 type Listener interface {
 	Name() string
-	GetAddrWithWeight(row string) (string, int)
+	GetAddrWithWeight(row string, spiltAddrWeight string) (string, int)
 	Context() context.Context
 	AddWeight(addr string, weight int) error
 	Exist(addr string) bool
