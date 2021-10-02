@@ -39,7 +39,7 @@ func NewRedisMasterSalve(master *Rdb, salves []*Rdb, typ Typ) *RedisMasterSalve 
 
 	nodeListener := sd.NewListener("nodes", "")
 	nodesTmp := map[string]int{}
-	for i := 0; i < len(nodesTmp); i++ {
+	for i := 0; i < len(d.nodes); i++ {
 		weight := 2
 		if i == 0 {
 			weight = 1
