@@ -32,16 +32,46 @@ func (t *Tool) InIntArr(s int, ss []int) bool {
 	return false
 }
 
+// GetLastIndexString 没匹配到返回空
 func (t *Tool) GetLastIndexString(s string, substr string) string {
-	return s[strings.LastIndex(s, substr)+len(substr):]
+	index := strings.LastIndex(s, substr)
+	if index < 0 {
+		return ""
+	}
+	return s[index+len(substr):]
+}
+
+// GetIndexString 没匹配到返回所有
+func (t *Tool) GetIndexString(s string, substr string) string {
+	index := strings.LastIndex(s, substr)
+	if index < 0 {
+		return s
+	}
+	return s[:index]
+}
+
+func (t *Tool) GetIndexInt(s string, substr string) int {
+	index := strings.LastIndex(s, substr)
+	if index < 0 {
+		return 0
+	}
+	return defaultConv.ShouldStoI(s[:index])
 }
 
 func (t *Tool) GetLastIndexInt(s string, substr string) int {
-	return defaultConv.ShouldStoI(s[strings.LastIndex(s, substr)+len(substr):])
+	index := strings.LastIndex(s, substr)
+	if index < 0 {
+		return 0
+	}
+	return defaultConv.ShouldStoI(s[index+len(substr):])
 }
 
 func (t *Tool) GetLastIndexInt64(s string, substr string) int64 {
-	return defaultConv.ShouldStoI64(s[strings.LastIndex(s, substr)+len(substr):])
+	index := strings.LastIndex(s, substr)
+	if index < 0 {
+		return 0
+	}
+	return defaultConv.ShouldStoI64(s[index+len(substr):])
 }
 
 func PrettyPrint(v interface{}) {
