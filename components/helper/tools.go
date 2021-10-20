@@ -32,17 +32,8 @@ func (t *Tool) InIntArr(s int, ss []int) bool {
 	return false
 }
 
-// GetLastIndexString 没匹配到返回空
-func (t *Tool) GetLastIndexString(s string, substr string) string {
-	index := strings.LastIndex(s, substr)
-	if index < 0 {
-		return ""
-	}
-	return s[index+len(substr):]
-}
-
-// GetIndexString 没匹配到返回所有
-func (t *Tool) GetIndexString(s string, substr string) string {
+// GetFirstString 没匹配到返回所有
+func (t *Tool) GetFirstString(s string, substr string) string {
 	index := strings.LastIndex(s, substr)
 	if index < 0 {
 		return s
@@ -50,7 +41,7 @@ func (t *Tool) GetIndexString(s string, substr string) string {
 	return s[:index]
 }
 
-func (t *Tool) GetIndexInt(s string, substr string) int {
+func (t *Tool) GetFirstInt(s string, substr string) int {
 	index := strings.LastIndex(s, substr)
 	if index < 0 {
 		return 0
@@ -58,7 +49,16 @@ func (t *Tool) GetIndexInt(s string, substr string) int {
 	return defaultConv.ShouldStoI(s[:index])
 }
 
-func (t *Tool) GetLastIndexInt(s string, substr string) int {
+// GetLastString 没匹配到返回空
+func (t *Tool) GetLastString(s string, substr string) string {
+	index := strings.LastIndex(s, substr)
+	if index < 0 {
+		return ""
+	}
+	return s[index+len(substr):]
+}
+
+func (t *Tool) GetLastInt(s string, substr string) int {
 	index := strings.LastIndex(s, substr)
 	if index < 0 {
 		return 0
@@ -66,7 +66,7 @@ func (t *Tool) GetLastIndexInt(s string, substr string) int {
 	return defaultConv.ShouldStoI(s[index+len(substr):])
 }
 
-func (t *Tool) GetLastIndexInt64(s string, substr string) int64 {
+func (t *Tool) GetLastInt64(s string, substr string) int64 {
 	index := strings.LastIndex(s, substr)
 	if index < 0 {
 		return 0
