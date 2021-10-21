@@ -11,13 +11,14 @@ import (
 )
 
 type Rdb struct {
-	engine       *redis.Client
-	conf         Conf
-	once         int64
-	err          error
-	lock         sync.Mutex
-	context      context.Context
-	singleflight singleflight.Group
+	engine          *redis.Client
+	conf            Conf
+	once            int64
+	err             error
+	lock            sync.Mutex
+	context         context.Context
+	funSingleFlight singleflight.Group
+	getSingleFlight singleflight.Group
 }
 
 func NewRdb(conf Conf) *Rdb {

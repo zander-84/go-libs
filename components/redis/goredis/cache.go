@@ -3,20 +3,58 @@ package goredis
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/go-redis/redis/v8"
 	"github.com/zander-84/go-libs/think"
+	"reflect"
+	"runtime"
 	"time"
 )
 
-func (this *Rdb) Get(ctx context.Context, key string, toPtr interface{}) error {
-	b, err := this.engine.Get(ctx, key).Bytes()
-	if err == redis.Nil {
-		return think.ErrInstanceRecordNotFound
-	}
+func (this *Rdb) Get(ctx context.Context, key string, toPtr interface{}) (err error) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			buf := make([]byte, 64<<10)
+			n := runtime.Stack(buf, false)
+			buf = buf[:n]
+			err = think.ErrSystemSpace(errors.New(string(buf)))
+		}
+	}()
+
+	data, err := this.getSingleFlight.Do(key, func() (interface{}, error) {
+		b, err := this.engine.Get(ctx, key).Bytes()
+		if err == redis.Nil {
+			return nil, think.ErrInstanceRecordNotFound
+		}
+		if err != nil {
+			b, err = this.engine.Get(ctx, key).Bytes()
+			if err == redis.Nil {
+				return nil, think.ErrInstanceRecordNotFound
+			}
+			if err != nil {
+				return nil, err
+			}
+		}
+		err = json.Unmarshal(b, toPtr)
+		if err != nil {
+			return nil, err
+		}
+		return toPtr, nil
+	})
+
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(b, toPtr)
+
+	if data != nil && toPtr != data {
+		if reflect.ValueOf(data).Type().Kind() == reflect.Ptr {
+			reflect.ValueOf(toPtr).Elem().Set(reflect.ValueOf(data).Elem())
+		} else {
+			reflect.ValueOf(toPtr).Elem().Set(reflect.ValueOf(data))
+		}
+	}
+
+	return err
 }
 
 func (this *Rdb) Set(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
@@ -43,7 +81,7 @@ func (this *Rdb) GetOrSet(ctx context.Context, key string, ptrValue interface{},
 			return err
 		}
 
-		if fv, fe := this.singleflight.Do(key, f); fe != nil {
+		if fv, fe := this.funSingleFlight.Do(key, f); fe != nil {
 			return fe
 		} else {
 			// 不允许覆盖
