@@ -4,12 +4,79 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/zander-84/go-libs/think"
 	"reflect"
 	"runtime"
 	"time"
 )
+
+func (this *Rdb) MGet(ctx context.Context, keys []string, ptrSliceData interface{}) (lostKeys []string, err error) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			buf := make([]byte, 64<<10)
+			n := runtime.Stack(buf, false)
+			buf = buf[:n]
+			err = think.ErrSystemSpace(errors.New(string(buf)))
+		}
+	}()
+	if reflect.ValueOf(ptrSliceData).Elem().Type().Kind() != reflect.Slice {
+		return nil, errors.New("data  must be slice ptr")
+	}
+
+	res, err := this.engine.MGet(ctx, keys...).Result()
+	if err != nil {
+		return nil, err
+	}
+	lostKeys = make([]string, 0)
+	var keyCnt = len(keys)
+	reflectValue := reflect.ValueOf(ptrSliceData).Elem()
+	for key, v := range res {
+		if v != nil {
+			tmp := reflect.New(reflectValue.Type().Elem())
+			tmp2, ok := v.(string)
+			if !ok {
+				return nil, errors.New("unmarshal error")
+			}
+			if err := json.Unmarshal([]byte(tmp2), tmp.Interface()); err != nil {
+				return nil, err
+			}
+			reflectValue.Set(reflect.Append(reflectValue, tmp.Elem()))
+		} else {
+			if key >= keyCnt {
+				return nil, fmt.Errorf("index out of range [%d] with length %d", key, keyCnt)
+			}
+			lostKeys = append(lostKeys, keys[key])
+			reflectValue.Set(reflect.Append(reflectValue, reflect.Zero(reflectValue.Type().Elem())))
+		}
+	}
+
+	return lostKeys, nil
+}
+
+func (this *Rdb) MGetOrSet(ctx context.Context, keys []string, ptrSliceData interface{}, ttl time.Duration, f func() (interface{}, error)) error {
+	lostKeys, err := this.MGet(ctx, keys, ptrSliceData)
+	if err != nil {
+		return err
+	}
+	if len(lostKeys) < 1 {
+		return nil
+	}
+	reflectValue := reflect.ValueOf(ptrSliceData).Elem()
+	for _, lkey := range lostKeys {
+		tmp := reflect.New(reflectValue.Type().Elem())
+		if err := this.GetOrSet(ctx, lkey, tmp.Interface(), ttl, f); err != nil {
+			return err
+		}
+		for k, val := range keys {
+			if val == lkey {
+				reflectValue.Index(k).Set(tmp.Elem())
+			}
+		}
+	}
+	return nil
+}
 
 func (this *Rdb) Get(ctx context.Context, key string, toPtr interface{}) (err error) {
 	defer func() {
@@ -88,6 +155,7 @@ func (this *Rdb) GetOrSet(ctx context.Context, key string, ptrValue interface{},
 			if err := this.SetNX(ctx, key, fv, ttl); err != nil {
 				return err
 			}
+
 			return this.Get(ctx, key, ptrValue)
 		}
 	}

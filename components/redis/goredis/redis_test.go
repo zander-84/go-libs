@@ -26,10 +26,10 @@ func TestRdb(t *testing.T) {
 	if err := rdb.Start(); err != nil {
 		t.Fatal("start redis err: ", err.Error())
 	}
-
-	go func() { testRdbString(t, rdb) }()
-	go func() { testRdbString(t, rdb) }()
-	go func() { testRdbString2(t, rdb) }()
+	testRdbMGet(t, rdb)
+	//go func() { testRdbString(t, rdb) }()
+	//go func() { testRdbString(t, rdb) }()
+	//go func() { testRdbString2(t, rdb) }()
 	//testRdbInt(t, rdb)
 	//testRdbStruct(t, rdb)
 	//testRdbMap(t, rdb)
@@ -39,11 +39,36 @@ func TestRdb(t *testing.T) {
 	//go func() {testRdbGetOrSet2(t, rdb)}()
 	//testRdbGetOrSetFast(t, rdb)
 	//testRdbFlushDB(t, rdb)
-	time.Sleep(2 * time.Second)
+	//time.Sleep(2 * time.Second)
 
 	t.Log("success")
 }
-
+func testRdbMGet(t *testing.T, rdb *Rdb) {
+	key1 := "string1"
+	val1 := 2
+	if err := rdb.Set(context.Background(), key1, val1, 100*time.Second); err != nil {
+		t.Fatal("set string err: ", err.Error())
+	}
+	key2 := "string2"
+	val2 := 3
+	if err := rdb.Set(context.Background(), key2, val2, 100*time.Second); err != nil {
+		t.Fatal("set string err: ", err.Error())
+	}
+	res := make([]int, 0)
+	if err := rdb.MGetOrSet(context.Background(), []string{key1, "fsaara", key2, "fffgggs"}, &res, 10*time.Second, func() (interface{}, error) {
+		return 1, nil
+	}); err != nil {
+		t.Fatal("MGet  err: ", err.Error())
+	} else {
+		fmt.Println(res)
+	}
+	//if _,err := rdb.MGet(context.Background(), []string{key1, "fs", key2, "ff"}, &res); err != nil {
+	//	t.Fatal("MGet  err: ", err.Error())
+	//} else {
+	//	fmt.Println(len(res))
+	//	fmt.Println(res)
+	//}
+}
 func testRdbString(t *testing.T, rdb *Rdb) {
 	key := "string"
 	val := "string"
