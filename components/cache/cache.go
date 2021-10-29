@@ -17,7 +17,7 @@ type Cache interface {
 
 	GetOrSet(ctx context.Context, key string, recPtr interface{}, expires time.Duration, f func() (value interface{}, err error)) error
 	MGet(ctx context.Context, keys []string, ptrSliceData interface{}) (lostKeys []string, err error)
-	MustMGetOrSet(ctx context.Context, key []string, recPtr interface{}, expires time.Duration, f func(id string) (value interface{}, err error)) error
+	MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, recPtr interface{}, expires time.Duration, f func(id string) (value interface{}, err error)) error
 	FlushDB(ctx context.Context) error
 }
 

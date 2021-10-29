@@ -12,7 +12,7 @@ import (
 
 var _ cache.Cache = (*Memory)(nil)
 
-func (this *Memory) MustMGetOrSet(ctx context.Context, key []string, recPtr interface{}, expires time.Duration, f func(key string) (value interface{}, err error)) error {
+func (this *Memory) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, recPtr interface{}, expires time.Duration, f func(key string) (value interface{}, err error)) error {
 	return errors.New("todo")
 }
 

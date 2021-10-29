@@ -50,7 +50,7 @@ func (this *Rdb) MGet(ctx context.Context, keys []string, ptrSliceData interface
 	return lostKeys, nil
 }
 
-func (this *Rdb) MustMGetOrSet(ctx context.Context, keys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (err error) {
+func (this *Rdb) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (err error) {
 	defer func() {
 		if rerr := recover(); rerr != nil {
 			buf := make([]byte, 64<<10)
@@ -60,7 +60,7 @@ func (this *Rdb) MustMGetOrSet(ctx context.Context, keys []string, ptrSliceData 
 		}
 	}()
 
-	lostKeys, err := this.MGet(ctx, keys, ptrSliceData)
+	lostKeys, err := this.MGet(ctx, redisKeys, ptrSliceData)
 	if err != nil {
 		return err
 	}
@@ -68,8 +68,8 @@ func (this *Rdb) MustMGetOrSet(ctx context.Context, keys []string, ptrSliceData 
 		return nil
 	}
 	reflectValue := reflect.ValueOf(ptrSliceData).Elem()
-	for _, lkey := range lostKeys {
-		if fv, fe := f(lkey); fe != nil {
+	for k, lkey := range lostKeys {
+		if fv, fe := f(rawKeys[k]); fe != nil {
 			return fe
 		} else {
 			// 不允许覆盖
@@ -77,7 +77,7 @@ func (this *Rdb) MustMGetOrSet(ctx context.Context, keys []string, ptrSliceData 
 				return err
 			}
 
-			for k, val := range keys {
+			for k, val := range redisKeys {
 				if val == lkey {
 					tmp := reflect.New(reflectValue.Type().Elem())
 					if err := this.Get(ctx, lkey, tmp.Interface()); err != nil {
