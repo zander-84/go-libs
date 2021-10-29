@@ -67,20 +67,21 @@ func (this *Rdb) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys 
 	if len(lostKeys) < 1 {
 		return nil
 	}
-	reflectValue := reflect.ValueOf(ptrSliceData).Elem()
-	for k, lkey := range lostKeys {
-		if fv, fe := f(rawKeys[k]); fe != nil {
-			return fe
-		} else {
-			// 不允许覆盖
-			if err := this.SetNX(ctx, lkey, fv, ttl); err != nil {
-				return err
-			}
 
-			for k, val := range redisKeys {
-				if val == lkey {
+	reflectValue := reflect.ValueOf(ptrSliceData).Elem()
+
+	for k, v := range redisKeys {
+		for _, vv := range lostKeys {
+			if v == vv {
+				if fv, fe := f(rawKeys[k]); fe != nil {
+					return fe
+				} else {
+					if err := this.SetNX(ctx, vv, fv, ttl); err != nil {
+						return err
+					}
+
 					tmp := reflect.New(reflectValue.Type().Elem())
-					if err := this.Get(ctx, lkey, tmp.Interface()); err != nil {
+					if err := this.Get(ctx, vv, tmp.Interface()); err != nil {
 						return err
 					}
 					reflectValue.Index(k).Set(tmp.Elem())
@@ -88,7 +89,6 @@ func (this *Rdb) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys 
 			}
 		}
 	}
-
 	return nil
 }
 
