@@ -12,6 +12,10 @@ import (
 
 var _ cache.Cache = (*Memory)(nil)
 
+func (this *Memory) MustMGetOrSet(ctx context.Context, key []string, recPtr interface{}, expires time.Duration, f func() (value interface{}, err error)) error {
+	return errors.New("todo")
+}
+
 func (this *Memory) unmarshal(form interface{}, toPtr interface{}) (err error) {
 	defer func() {
 		if rerr := recover(); rerr != nil {

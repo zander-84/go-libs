@@ -6,21 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/zander-84/go-libs/components/cache"
 	"github.com/zander-84/go-libs/think"
 	"reflect"
 	"runtime"
 	"time"
 )
 
+var _ cache.Cache = (*Rdb)(nil)
+
 func (this *Rdb) MGet(ctx context.Context, keys []string, ptrSliceData interface{}) (lostKeys []string, err error) {
-	defer func() {
-		if rerr := recover(); rerr != nil {
-			buf := make([]byte, 64<<10)
-			n := runtime.Stack(buf, false)
-			buf = buf[:n]
-			err = think.ErrSystemSpace(errors.New(string(buf)))
-		}
-	}()
 	if reflect.ValueOf(ptrSliceData).Elem().Type().Kind() != reflect.Slice {
 		return nil, errors.New("data  must be slice ptr")
 	}
@@ -55,7 +50,16 @@ func (this *Rdb) MGet(ctx context.Context, keys []string, ptrSliceData interface
 	return lostKeys, nil
 }
 
-func (this *Rdb) MGetOrSet(ctx context.Context, keys []string, ptrSliceData interface{}, ttl time.Duration, f func() (interface{}, error)) error {
+func (this *Rdb) MustMGetOrSet(ctx context.Context, keys []string, ptrSliceData interface{}, ttl time.Duration, f func() (interface{}, error)) (err error) {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			buf := make([]byte, 64<<10)
+			n := runtime.Stack(buf, false)
+			buf = buf[:n]
+			err = think.ErrSystemSpace(errors.New(string(buf)))
+		}
+	}()
+
 	lostKeys, err := this.MGet(ctx, keys, ptrSliceData)
 	if err != nil {
 		return err
@@ -65,16 +69,27 @@ func (this *Rdb) MGetOrSet(ctx context.Context, keys []string, ptrSliceData inte
 	}
 	reflectValue := reflect.ValueOf(ptrSliceData).Elem()
 	for _, lkey := range lostKeys {
-		tmp := reflect.New(reflectValue.Type().Elem())
-		if err := this.GetOrSet(ctx, lkey, tmp.Interface(), ttl, f); err != nil {
-			return err
-		}
-		for k, val := range keys {
-			if val == lkey {
-				reflectValue.Index(k).Set(tmp.Elem())
+
+		if fv, fe := this.funSingleFlight.Do(lkey, f); fe != nil {
+			return fe
+		} else {
+			// 不允许覆盖
+			if err := this.SetNX(ctx, lkey, fv, ttl); err != nil {
+				return err
+			}
+
+			for k, val := range keys {
+				if val == lkey {
+					tmp := reflect.New(reflectValue.Type().Elem())
+					if err := this.Get(ctx, lkey, tmp.Interface()); err != nil {
+						return err
+					}
+					reflectValue.Index(k).Set(tmp.Elem())
+				}
 			}
 		}
 	}
+
 	return nil
 }
 

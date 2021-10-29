@@ -16,7 +16,7 @@ type Cache interface {
 	Delete(ctx context.Context, key ...string) error
 
 	GetOrSet(ctx context.Context, key string, recPtr interface{}, expires time.Duration, f func() (value interface{}, err error)) error
-
+	MustMGetOrSet(ctx context.Context, key []string, recPtr interface{}, expires time.Duration, f func() (value interface{}, err error)) error
 	FlushDB(ctx context.Context) error
 }
 

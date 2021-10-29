@@ -45,18 +45,18 @@ func TestRdb(t *testing.T) {
 }
 func testRdbMGet(t *testing.T, rdb *Rdb) {
 	key1 := "string1"
-	val1 := 2
+	val1 := 2.1
 	if err := rdb.Set(context.Background(), key1, val1, 100*time.Second); err != nil {
 		t.Fatal("set string err: ", err.Error())
 	}
 	key2 := "string2"
-	val2 := 3
+	val2 := 3.1
 	if err := rdb.Set(context.Background(), key2, val2, 100*time.Second); err != nil {
 		t.Fatal("set string err: ", err.Error())
 	}
-	res := make([]int, 0)
-	if err := rdb.MGetOrSet(context.Background(), []string{key1, "fsaara", key2, "fffgggs"}, &res, 10*time.Second, func() (interface{}, error) {
-		return 1, nil
+	res := make([]float64, 0)
+	if err := rdb.MustMGetOrSet(context.Background(), []string{key1, "fsaara", key2, "fffgggs"}, &res, 10*time.Second, func() (interface{}, error) {
+		return 1.1, nil
 	}); err != nil {
 		t.Fatal("MGet  err: ", err.Error())
 	} else {
