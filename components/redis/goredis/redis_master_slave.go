@@ -119,6 +119,20 @@ func (this *RedisMasterSalve) GetOrSet(ctx context.Context, key string, ptrValue
 	return this.master.GetOrSet(ctx, key, ptrValue, ttl, f)
 }
 
+func (this *RedisMasterSalve) MGet(ctx context.Context, keys []string, ptrSliceData interface{}) (lostKeys []string, err error) {
+	return this.getRdb().MGet(ctx, keys, ptrSliceData)
+}
+func (this *RedisMasterSalve) MGetFromMaster(ctx context.Context, keys []string, ptrSliceData interface{}) (lostKeys []string, err error) {
+	return this.master.MGet(ctx, keys, ptrSliceData)
+}
+func (this *RedisMasterSalve) MGetFromSlave(ctx context.Context, keys []string, ptrSliceData interface{}) (lostKeys []string, err error) {
+	return this.GetSalve().MGet(ctx, keys, ptrSliceData)
+}
+
+func (this *RedisMasterSalve) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (err error) {
+	return this.master.MustMGetOrSet(ctx, rawKeys, redisKeys, ptrSliceData, ttl, f)
+}
+
 func (this *RedisMasterSalve) Delete(ctx context.Context, key ...string) error {
 	return this.master.Delete(ctx, key...)
 }
