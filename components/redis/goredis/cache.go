@@ -50,7 +50,7 @@ func (this *Rdb) MGet(ctx context.Context, keys []string, ptrSliceData interface
 	return lostKeys, nil
 }
 
-func (this *Rdb) MustMGetOrSet(ctx context.Context, keys []string, ptrSliceData interface{}, ttl time.Duration, f func() (interface{}, error)) (err error) {
+func (this *Rdb) MustMGetOrSet(ctx context.Context, keys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (err error) {
 	defer func() {
 		if rerr := recover(); rerr != nil {
 			buf := make([]byte, 64<<10)
@@ -69,8 +69,7 @@ func (this *Rdb) MustMGetOrSet(ctx context.Context, keys []string, ptrSliceData 
 	}
 	reflectValue := reflect.ValueOf(ptrSliceData).Elem()
 	for _, lkey := range lostKeys {
-
-		if fv, fe := this.funSingleFlight.Do(lkey, f); fe != nil {
+		if fv, fe := f(lkey); fe != nil {
 			return fe
 		} else {
 			// 不允许覆盖

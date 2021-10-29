@@ -12,8 +12,12 @@ import (
 
 var _ cache.Cache = (*Memory)(nil)
 
-func (this *Memory) MustMGetOrSet(ctx context.Context, key []string, recPtr interface{}, expires time.Duration, f func() (value interface{}, err error)) error {
+func (this *Memory) MustMGetOrSet(ctx context.Context, key []string, recPtr interface{}, expires time.Duration, f func(key string) (value interface{}, err error)) error {
 	return errors.New("todo")
+}
+
+func (this *Memory) MGet(ctx context.Context, keys []string, ptrSliceData interface{}) (lostKeys []string, err error) {
+	return nil, errors.New("todo")
 }
 
 func (this *Memory) unmarshal(form interface{}, toPtr interface{}) (err error) {
