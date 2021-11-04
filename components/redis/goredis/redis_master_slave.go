@@ -129,9 +129,9 @@ func (this *RedisMasterSalve) MGetFromSlave(ctx context.Context, keys []string, 
 	return this.GetSalve().MGet(ctx, keys, ptrSliceData)
 }
 
-func (this *RedisMasterSalve) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (err error) {
+func (this *RedisMasterSalve) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (lostKey string, err error) {
 	if lostKeys, err := this.getRdb().MGet(ctx, redisKeys, ptrSliceData); err == nil || len(lostKeys) < 1 {
-		return nil
+		return "", nil
 	}
 	return this.master.MustMGetOrSet(ctx, rawKeys, redisKeys, ptrSliceData, ttl, f)
 }

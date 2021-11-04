@@ -50,7 +50,7 @@ func (this *Rdb) MGet(ctx context.Context, keys []string, ptrSliceData interface
 	return lostKeys, nil
 }
 
-func (this *Rdb) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (err error) {
+func (this *Rdb) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (lostKey string, err error) {
 	defer func() {
 		if rerr := recover(); rerr != nil {
 			buf := make([]byte, 64<<10)
@@ -62,10 +62,10 @@ func (this *Rdb) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys 
 
 	lostKeys, err := this.MGet(ctx, redisKeys, ptrSliceData)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if len(lostKeys) < 1 {
-		return nil
+		return "", nil
 	}
 
 	reflectValue := reflect.ValueOf(ptrSliceData).Elem()
@@ -74,22 +74,22 @@ func (this *Rdb) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys 
 		for _, vv := range lostKeys {
 			if v == vv {
 				if fv, fe := f(rawKeys[k]); fe != nil {
-					return fe
+					return rawKeys[k], fe
 				} else {
 					if err := this.SetNX(ctx, vv, fv, ttl); err != nil {
-						return err
+						return rawKeys[k], err
 					}
 
 					tmp := reflect.New(reflectValue.Type().Elem())
 					if err := this.Get(ctx, vv, tmp.Interface()); err != nil {
-						return err
+						return rawKeys[k], err
 					}
 					reflectValue.Index(k).Set(tmp.Elem())
 				}
 			}
 		}
 	}
-	return nil
+	return "", nil
 }
 
 func (this *Rdb) Get(ctx context.Context, key string, toPtr interface{}) (err error) {
@@ -113,12 +113,12 @@ func (this *Rdb) Get(ctx context.Context, key string, toPtr interface{}) (err er
 				return nil, think.ErrInstanceRecordNotFound
 			}
 			if err != nil {
-				return nil, err
+				return nil, think.ErrSystemSpace(err)
 			}
 		}
 		err = json.Unmarshal(b, toPtr)
 		if err != nil {
-			return nil, err
+			return nil, think.ErrSystemSpace(err)
 		}
 		return toPtr, nil
 	})
