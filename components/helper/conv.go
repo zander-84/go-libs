@@ -56,6 +56,14 @@ func (c *Conv) ShouldU64toS(u uint64) string {
 	return strconv.FormatUint(u, 10)
 }
 
+func (c *Conv) ShouldSliceInt2Str(in []int64) []string {
+	var idsStr = make([]string, 0, len(in))
+	for _, id := range in {
+		idsStr = append(idsStr, fmt.Sprintf("%d", id))
+	}
+	return idsStr
+}
+
 //ShouldStoB
 //字符串bool转系统bool
 //备注：
