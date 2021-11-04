@@ -163,7 +163,7 @@ func IsErrBiz(err error) bool {
 func Err2Code(err error) Code {
 	e, ok := err.(*Error)
 	if ok == false {
-		return CodeUndefined
+		return CodeSystemSpaceError
 	}
 	return e.code
 }
