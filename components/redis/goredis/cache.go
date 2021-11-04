@@ -56,7 +56,7 @@ func (this *Rdb) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys 
 			buf := make([]byte, 64<<10)
 			n := runtime.Stack(buf, false)
 			buf = buf[:n]
-			err = think.ErrSystemSpace(errors.New(string(buf)))
+			err = errors.New(string(buf))
 		}
 	}()
 
@@ -98,7 +98,7 @@ func (this *Rdb) Get(ctx context.Context, key string, toPtr interface{}) (err er
 			buf := make([]byte, 64<<10)
 			n := runtime.Stack(buf, false)
 			buf = buf[:n]
-			err = think.ErrSystemSpace(errors.New(string(buf)))
+			err = errors.New(string(buf))
 		}
 	}()
 
@@ -113,12 +113,12 @@ func (this *Rdb) Get(ctx context.Context, key string, toPtr interface{}) (err er
 				return nil, think.ErrInstanceRecordNotFound
 			}
 			if err != nil {
-				return nil, think.ErrSystemSpace(err)
+				return nil, err
 			}
 		}
 		err = json.Unmarshal(b, toPtr)
 		if err != nil {
-			return nil, think.ErrSystemSpace(err)
+			return nil, err
 		}
 		return toPtr, nil
 	})
