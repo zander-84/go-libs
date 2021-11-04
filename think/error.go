@@ -45,6 +45,17 @@ func ErrNotFound(err error) error {
 
 var ErrInstanceRecordNotFound = ErrNotFound(errors.New("record not found"))
 
+func IsThinkErr(err error) bool {
+	e, ok := err.(*Error)
+	if ok == false {
+		return false
+	}
+	if e.code < MinCode {
+		return false
+	}
+	return true
+}
+
 func IsErrNotFound(err error) bool {
 	e, ok := err.(*Error)
 	if ok == false {
