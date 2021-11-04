@@ -40,7 +40,7 @@ func (e *Error) Error() string {
 
 // ErrNotFound 数据未找到
 func ErrNotFound(err error) error {
-	return &Error{code: CodeNotFound, err: errors.New(err.Error())}
+	return &Error{code: CodeNotFound, err: err}
 }
 
 var ErrInstanceRecordNotFound = ErrNotFound(errors.New("record not found"))
@@ -69,54 +69,54 @@ func IsErrNotFound(err error) bool {
 
 // ErrRepeat 重复操作
 func ErrRepeat(err error) error {
-	return &Error{code: CodeRepeat, err: errors.New(err.Error())}
+	return &Error{code: CodeRepeat, err: err}
 }
 
 // ErrUnDone 未完成
 func ErrUnDone(err error) error {
-	return &Error{code: CodeUnDone, err: errors.New(err.Error())}
+	return &Error{code: CodeUnDone, err: err}
 }
 
 var ErrInstanceUnDone = ErrUnDone(errors.New("err undone"))
 
 // ErrType 错误类型
 func ErrType(err error) error {
-	return &Error{code: CodeTypeError, err: errors.New(err.Error())}
+	return &Error{code: CodeTypeError, err: err}
 }
 
 // ErrIgnore 忽略错误
 func ErrIgnore(err error) error {
-	return &Error{code: CodeIgnore, err: errors.New(err.Error())}
+	return &Error{code: CodeIgnore, err: err}
 }
 
 // ErrUnknown 未知错误
 func ErrUnknown(err error) error {
-	return &Error{code: CodeUndefined, err: errors.New(err.Error())}
+	return &Error{code: CodeUndefined, err: err}
 }
 
 // ErrTooManyRequest 请求过多
 func ErrTooManyRequest(err error) error {
-	return &Error{code: CodeTooManyRequests, err: errors.New(err.Error())}
+	return &Error{code: CodeTooManyRequests, err: err}
 }
 
 // ErrForbidden 禁止访问
 func ErrForbidden(err error) error {
-	return &Error{code: CodeForbidden, err: errors.New(err.Error())}
+	return &Error{code: CodeForbidden, err: err}
 }
 
 // ErrSign 签名错误
 func ErrSign(err error) error {
-	return &Error{code: CodeSignError, err: errors.New(err.Error())}
+	return &Error{code: CodeSignError, err: err}
 }
 
 // ErrUnauthorized 未认证
 func ErrUnauthorized(err error) error {
-	return &Error{code: CodeUnauthorized, err: errors.New(err.Error())}
+	return &Error{code: CodeUnauthorized, err: err}
 }
 
 // ErrSystemSpace 系统空间
 func ErrSystemSpace(err error) error {
-	return &Error{code: CodeSystemSpaceError, err: errors.New(err.Error())}
+	return &Error{code: CodeSystemSpaceError, err: err}
 }
 
 func IsErrSystemSpace(err error) bool {
@@ -132,22 +132,22 @@ func IsErrSystemSpace(err error) bool {
 
 // ErrAlter 简单错误 提示
 func ErrAlter(err error) error {
-	return &Error{code: CodeAlterError, err: errors.New(err.Error())}
+	return &Error{code: CodeAlterError, err: err}
 }
 
 // ErrParam 参数错误
 func ErrParam(err error) error {
-	return &Error{code: CodeParamError, err: errors.New(err.Error())}
+	return &Error{code: CodeParamError, err: err}
 }
 
 // ErrTimeOut 参数错误
 func ErrTimeOut(err error) error {
-	return &Error{code: CodeTimeOut, err: errors.New(err.Error())}
+	return &Error{code: CodeTimeOut, err: err}
 }
 
 // ErrBiz 业务错误
 func ErrBiz(subCode int, err error) error {
-	return &Error{code: CodeBizError, bizCode: subCode, err: errors.New(err.Error())}
+	return &Error{code: CodeBizError, bizCode: subCode, err: err}
 }
 
 func IsErrBiz(err error) bool {
