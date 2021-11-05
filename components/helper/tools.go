@@ -41,39 +41,6 @@ func (t *Tool) GetFirstString(s string, substr string) string {
 	return s[:index]
 }
 
-func (t *Tool) GetFirstInt(s string, substr string) int {
-	index := strings.LastIndex(s, substr)
-	if index < 0 {
-		return 0
-	}
-	return defaultConv.ShouldStoI(s[:index])
-}
-
-// GetLastString 没匹配到返回空
-func (t *Tool) GetLastString(s string, substr string) string {
-	index := strings.LastIndex(s, substr)
-	if index < 0 {
-		return ""
-	}
-	return s[index+len(substr):]
-}
-
-func (t *Tool) GetLastInt(s string, substr string) int {
-	index := strings.LastIndex(s, substr)
-	if index < 0 {
-		return 0
-	}
-	return defaultConv.ShouldStoI(s[index+len(substr):])
-}
-
-func (t *Tool) GetLastInt64(s string, substr string) int64 {
-	index := strings.LastIndex(s, substr)
-	if index < 0 {
-		return 0
-	}
-	return defaultConv.ShouldStoI64(s[index+len(substr):])
-}
-
 func PrettyPrint(v interface{}) {
 	b, err := json.Marshal(v)
 	if err != nil {
