@@ -13,7 +13,7 @@ func NewStringTool() *StringTool { return new(StringTool) }
 func GetStringTool() *StringTool { return stringTool }
 
 // GetFirstString 没匹配到返回所有
-func (t *SliceTool) GetFirstString(s string, substr string) string {
+func (t *StringTool) GetFirstString(s string, substr string) string {
 	index := strings.LastIndex(s, substr)
 	if index < 0 {
 		return s
