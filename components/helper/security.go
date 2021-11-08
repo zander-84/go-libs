@@ -9,6 +9,7 @@ import (
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 )
 
 var defaultSecurity = NewSecurity()
@@ -60,7 +61,7 @@ func (*Security) TripleDESDecrypt(src, key []byte) ([]byte, error) {
 	return dst, nil
 }
 
-func (*Security) AESEncrypt(src, key []byte) ([]byte, error) {
+func (*Security) AESCBCPkcs5Encrypt(src, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -72,7 +73,7 @@ func (*Security) AESEncrypt(src, key []byte) ([]byte, error) {
 	return dst, nil
 }
 
-func (*Security) AESDecrypt(src, key []byte) ([]byte, error) {
+func (*Security) AESCBCPkcs5Decrypt(src, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -82,6 +83,30 @@ func (*Security) AESDecrypt(src, key []byte) ([]byte, error) {
 	blockMode.CryptBlocks(dst, src)
 	dst = PKCS5UnPadding(dst)
 	return dst, nil
+}
+
+//AESECBPkcs7Encrypt aes-ecb-encrypt 加密 pkcs7填充
+func (*Security) AESECBPkcs7Encrypt(src, key []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	return ECBEncrypt(block, PKCS7Padding(src, block.BlockSize()))
+}
+
+//AESECBPkcs7Decrypt aes-ecb-decrypt 解密 pkcs7填充
+func (*Security) AESECBPkcs7Decrypt(src, key []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	dst, err := ECBDecrypt(block, src)
+
+	if err != nil {
+		return nil, err
+	}
+	return PKCS7UnPadding(dst), nil
 }
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
@@ -95,4 +120,51 @@ func PKCS5UnPadding(origData []byte) []byte {
 	length := len(origData)
 	number := int(origData[length-1])
 	return origData[:(length - number)]
+}
+
+func PKCS7Padding(src []byte, blockSize int) []byte {
+	padding := blockSize - len(src)%blockSize
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(src, padtext...)
+}
+
+func PKCS7UnPadding(src []byte) []byte {
+	length := len(src)
+	if length == 0 {
+		return src
+	}
+	unpadding := int(src[length-1])
+	return src[:(length - unpadding)]
+}
+
+func ECBEncrypt(b cipher.Block, src []byte) ([]byte, error) {
+	dst := make([]byte, len(src))
+	if len(src)%b.BlockSize() != 0 {
+		return nil, errors.New("crypto/cipher: input not full blocks")
+	}
+	if len(dst) < len(src) {
+		return nil, errors.New("crypto/cipher: output smaller than input")
+	}
+	for len(src) > 0 {
+		b.Encrypt(dst, src[:b.BlockSize()])
+		src = src[b.BlockSize():]
+		dst = dst[b.BlockSize():]
+	}
+	return dst, nil
+}
+
+func ECBDecrypt(b cipher.Block, src []byte) ([]byte, error) {
+	dst := make([]byte, len(src))
+	if len(src)%b.BlockSize() != 0 {
+		return nil, errors.New("crypto/cipher: input not full blocks")
+	}
+	if len(dst) < len(src) {
+		return nil, errors.New("crypto/cipher: output smaller than input")
+	}
+	for len(src) > 0 {
+		b.Decrypt(dst, src[:b.BlockSize()])
+		src = src[b.BlockSize():]
+		dst = dst[b.BlockSize():]
+	}
+	return dst, nil
 }
