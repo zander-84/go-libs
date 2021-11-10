@@ -10,6 +10,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"strings"
 )
 
 var defaultSecurity = NewSecurity()
@@ -35,6 +36,10 @@ func (*Security) Sha256Hmac(str string, key string) string {
 	mac := hmac.New(sha256.New, []byte(key))
 	mac.Write([]byte(str))
 	return hex.EncodeToString(mac.Sum(nil))
+}
+
+func (s *Security) Sha256HmacToUpper(str string, key string) string {
+	return strings.ToUpper(s.Sha256Hmac(str, key))
 }
 
 func (*Security) TripleDESEncrypt(src, key []byte) ([]byte, error) {
