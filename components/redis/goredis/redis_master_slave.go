@@ -7,7 +7,7 @@ import (
 	"github.com/zander-84/go-libs/components/helper"
 	"github.com/zander-84/go-libs/components/helper/sd"
 	"github.com/zander-84/go-libs/think"
-	"reflect"
+	"runtime"
 	"time"
 )
 
@@ -132,16 +132,21 @@ func (this *RedisMasterSalve) MGetFromSlave(ctx context.Context, keys []string, 
 }
 
 func (this *RedisMasterSalve) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (lostKey string, err error) {
-	if reflect.ValueOf(ptrSliceData).Elem().Type().Kind() != reflect.Slice {
-		return "", errors.New("data  must be slice ptr")
-	}
-	_cap := reflect.ValueOf(ptrSliceData).Elem().Cap()
-	if lostKeys, err := this.getRdb().MGet(ctx, redisKeys, ptrSliceData); err == nil && len(lostKeys) < 1 {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			buf := make([]byte, 64<<10)
+			n := runtime.Stack(buf, false)
+			buf = buf[:n]
+			err = errors.New(string(buf))
+		}
+	}()
+
+	lostKeys, err := this.getRdb().MGet(ctx, redisKeys, ptrSliceData)
+	if err == nil && len(lostKeys) < 1 {
 		return "", nil
 	}
-	reflect.ValueOf(ptrSliceData).Elem().SetLen(0)
-	reflect.ValueOf(ptrSliceData).Elem().SetCap(_cap)
-	return this.master.MustMGetOrSet(ctx, rawKeys, redisKeys, ptrSliceData, ttl, f)
+
+	return this.master.MLostSet(ctx, rawKeys, lostKeys, redisKeys, ptrSliceData, ttl, f)
 }
 
 func (this *RedisMasterSalve) Delete(ctx context.Context, key ...string) error {

@@ -68,8 +68,11 @@ func (this *Rdb) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys 
 		return "", nil
 	}
 
-	reflectValue := reflect.ValueOf(ptrSliceData).Elem()
+	return this.MLostSet(ctx, rawKeys, lostKeys, redisKeys, ptrSliceData, ttl, f)
+}
 
+func (this *Rdb) MLostSet(ctx context.Context, rawKeys []string, lostKeys []string, redisKeys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (lostKey string, err error) {
+	reflectValue := reflect.ValueOf(ptrSliceData).Elem()
 	for k, v := range redisKeys {
 		for _, vv := range lostKeys {
 			if v == vv {
