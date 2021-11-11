@@ -6,6 +6,7 @@ import (
 	"github.com/zander-84/go-libs/components/helper"
 	"github.com/zander-84/go-libs/components/helper/sd"
 	"github.com/zander-84/go-libs/think"
+	"reflect"
 	"time"
 )
 
@@ -130,9 +131,12 @@ func (this *RedisMasterSalve) MGetFromSlave(ctx context.Context, keys []string, 
 }
 
 func (this *RedisMasterSalve) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (lostKey string, err error) {
+	_cap := reflect.ValueOf(ptrSliceData).Elem().Cap()
 	if lostKeys, err := this.getRdb().MGet(ctx, redisKeys, ptrSliceData); err == nil && len(lostKeys) < 1 {
 		return "", nil
 	}
+	reflect.ValueOf(ptrSliceData).Elem().SetLen(0)
+	reflect.ValueOf(ptrSliceData).Elem().SetCap(_cap)
 	return this.master.MustMGetOrSet(ctx, rawKeys, redisKeys, ptrSliceData, ttl, f)
 }
 
