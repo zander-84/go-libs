@@ -2,6 +2,7 @@ package goredis
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/zander-84/go-libs/components/helper"
 	"github.com/zander-84/go-libs/components/helper/sd"
@@ -131,6 +132,9 @@ func (this *RedisMasterSalve) MGetFromSlave(ctx context.Context, keys []string, 
 }
 
 func (this *RedisMasterSalve) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (lostKey string, err error) {
+	if reflect.ValueOf(ptrSliceData).Elem().Type().Kind() != reflect.Slice {
+		return "", errors.New("data  must be slice ptr")
+	}
 	_cap := reflect.ValueOf(ptrSliceData).Elem().Cap()
 	if lostKeys, err := this.getRdb().MGet(ctx, redisKeys, ptrSliceData); err == nil && len(lostKeys) < 1 {
 		return "", nil
