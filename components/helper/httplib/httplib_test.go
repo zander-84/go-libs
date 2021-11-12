@@ -42,6 +42,6 @@ func TestHttpRequest(t *testing.T) {
 		t.Error(err.Error())
 	} else {
 		fmt.Println(string(p.DumpRequest()))
-		//fmt.Println(res)
+		//fmt.Println(res )
 	}
 }
