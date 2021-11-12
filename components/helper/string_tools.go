@@ -53,3 +53,10 @@ func (t *StringTool) GetLastInt64(s string, substr string) int64 {
 	}
 	return defaultConv.ShouldStoI64(s[index+len(substr):])
 }
+
+func (t *StringTool) Split(s string, sep string) []string {
+	if s == "" {
+		return make([]string, 0)
+	}
+	return strings.Split(s, sep)
+}
