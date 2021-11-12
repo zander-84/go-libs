@@ -2,10 +2,12 @@ package goredis
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/zander-84/go-libs/components/helper"
 	"github.com/zander-84/go-libs/components/helper/sd"
 	"github.com/zander-84/go-libs/think"
+	"runtime"
 	"time"
 )
 
@@ -130,10 +132,21 @@ func (this *RedisMasterSalve) MGetFromSlave(ctx context.Context, keys []string, 
 }
 
 func (this *RedisMasterSalve) MustMGetOrSet(ctx context.Context, rawKeys []string, redisKeys []string, ptrSliceData interface{}, ttl time.Duration, f func(id string) (interface{}, error)) (lostKey string, err error) {
-	if lostKeys, err := this.getRdb().MGet(ctx, redisKeys, ptrSliceData); err == nil && len(lostKeys) < 1 {
+	defer func() {
+		if rerr := recover(); rerr != nil {
+			buf := make([]byte, 64<<10)
+			n := runtime.Stack(buf, false)
+			buf = buf[:n]
+			err = errors.New(string(buf))
+		}
+	}()
+
+	lostKeys, err := this.getRdb().MGet(ctx, redisKeys, ptrSliceData)
+	if err == nil && len(lostKeys) < 1 {
 		return "", nil
 	}
-	return this.master.MustMGetOrSet(ctx, rawKeys, redisKeys, ptrSliceData, ttl, f)
+
+	return this.master.MLostSet(ctx, rawKeys, lostKeys, redisKeys, ptrSliceData, ttl, f)
 }
 
 func (this *RedisMasterSalve) Delete(ctx context.Context, key ...string) error {

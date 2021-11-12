@@ -55,7 +55,7 @@ func testRdbMGet(t *testing.T, rdb *Rdb) {
 		t.Fatal("set string err: ", err.Error())
 	}
 	res := make([]float64, 0)
-	if err := rdb.MustMGetOrSet(context.Background(), []string{key1, "fsaara", key2, "fffgggs"}, []string{key1, "fsaara", key2, "fffgggs"}, &res, 10*time.Second, func(id string) (interface{}, error) {
+	if _, err := rdb.MustMGetOrSet(context.Background(), []string{key1, "fsaara", key2, "fffgggs"}, []string{key1, "fsaara", key2, "fffgggs"}, &res, 10*time.Second, func(id string) (interface{}, error) {
 		return 1.1, nil
 	}); err != nil {
 		t.Fatal("MGet  err: ", err.Error())
