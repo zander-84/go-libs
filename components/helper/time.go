@@ -34,12 +34,12 @@ func (t *Time) NowFormat(layout string) string {
 
 //Parse layout "01/02/2006", sourceTime "02/08/2020"
 func (t *Time) Parse(layout string, sourceTime string) (time.Time, error) {
-	return time.Parse(layout, sourceTime)
+	return time.ParseInLocation(layout, sourceTime, time.Local)
 }
 
 func (t *Time) GetDayTime(calcDay int) time.Time {
 	day := t.Now().AddDate(0, 0, calcDay).Format("2006-01-02")
-	today, _ := time.Parse("2006-01-02", day)
+	today, _ := time.ParseInLocation("2006-01-02", day, time.Local)
 	return today
 }
 
@@ -93,7 +93,7 @@ func (t *Time) UnixNano() int64 {
 //例：timeIns.TimeToUnixNano("2006-01-02T15:04:05.999999999", "2006-01-02T15:04:05.999999999")
 //返回结果 1136185445999999999
 func (t *Time) ParseTimeToUnixNano(layout string, source string) (int64, error) {
-	sourceTime, err := time.Parse(layout, source)
+	sourceTime, err := time.ParseInLocation(layout, source, time.Local)
 	if err != nil {
 		return 0, err
 	}
