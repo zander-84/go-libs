@@ -27,11 +27,12 @@ func TestHttpRequest(t *testing.T) {
 	//	//fmt.Println(res)
 	//}
 
-	p := Get("http://test.local/test.php")
-	p, _ = p.Param("name", "abc").
+	p := Post("http://ks-tmp.52haoka.com/dxjx/PoolService/api")
+	p, _ = p.
 		JSONBody(map[string]interface{}{
-			"age":  18,
-			"from": "china",
+			"spcode": "18",
+			"from":   "china",
+			"method": "tyk-address",
 		})
 
 	if _, err := p.
@@ -41,7 +42,10 @@ func TestHttpRequest(t *testing.T) {
 		Response(); err != nil {
 		t.Error(err.Error())
 	} else {
+		fmt.Println(p.String())
 		fmt.Println(string(p.DumpRequest()))
+		fmt.Println(p.String())
+
 		//fmt.Println(res )
 	}
 }

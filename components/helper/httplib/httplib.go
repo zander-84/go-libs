@@ -562,6 +562,16 @@ func (b *HTTPRequest) doRequest(ctx context.Context) (resp *http.Response, err e
 		}
 		time.Sleep(b.setting.RetryDelay)
 	}
+
+	if b.setting.ShowDebug {
+		dump, err := httputil.DumpResponse(resp, b.setting.ShowDebug)
+		if err != nil {
+			log.Println(err.Error())
+		}
+		b.dump = append(b.dump, []byte("\n")...)
+		b.dump = append(b.dump, dump...)
+	}
+
 	return resp, err
 }
 
@@ -598,6 +608,7 @@ func (b *HTTPRequest) Bytes() ([]byte, error) {
 		b.body, err = ioutil.ReadAll(reader)
 		return b.body, err
 	}
+
 	b.body, err = ioutil.ReadAll(resp.Body)
 	return b.body, err
 }
