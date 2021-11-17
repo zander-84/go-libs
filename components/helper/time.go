@@ -160,6 +160,24 @@ func (t *Time) ShouldFormatHyphenFromTime(timer time.Time) string {
 	return timer.Format("2006-01-02 15:04:05")
 }
 
+//ShouldFormatMilliTimeFromInt 毫秒级时间戳转字符串
+func (t *Time) ShouldFormatMilliTimeFromInt(in int64) string {
+	if in == 0 {
+		return ""
+	}
+	timer := t.UnixMilliTime(in)
+	return timer.Format("2006-01-02 15:04:05")
+}
+
+//ShouldFormatTimeFromInt 秒级时间戳转字符串
+func (t *Time) ShouldFormatTimeFromInt(in int64) string {
+	if in == 0 {
+		return ""
+	}
+	timer := t.UnixToTime(in)
+	return timer.Format("2006-01-02 15:04:05")
+}
+
 func (t *Time) FormatHyphenFromNow() string {
 	return t.Now().Format("2006-01-02 15:04:05")
 }
