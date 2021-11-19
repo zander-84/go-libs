@@ -96,8 +96,9 @@ func (*Security) AESECBPkcs7Encrypt(src, key []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	src = PKCS7Padding(src, block.BlockSize())
 	dst := make([]byte, len(src))
-	err = ECBEncrypt(block, dst, PKCS7Padding(src, block.BlockSize()))
+	err = ECBEncrypt(block, dst, src)
 	return dst, err
 }
 
