@@ -53,6 +53,10 @@ func (t *Time) UnixMilliTime(msec int64) time.Time {
 	return time.Unix(0, msec*int64(time.Millisecond))
 }
 
+func (t *Time) AddMonthToUnixMilli(month int) int64 {
+	return time.Now().AddDate(0, month, 0).UnixNano() / 1e6
+}
+
 //ShouldTimeToUnix 时间戳秒 例：1628127247
 func (t *Time) ShouldTimeToUnix(timer time.Time) int64 {
 	if timer.IsZero() {

@@ -564,7 +564,7 @@ func (b *HTTPRequest) doRequest(ctx context.Context) (resp *http.Response, err e
 	}
 
 	if b.setting.ShowDebug {
-		dump, err := httputil.DumpResponse(resp, b.setting.ShowDebug)
+		dump, err := httputil.DumpResponse(resp, b.setting.DumpBody)
 		if err != nil {
 			log.Println(err.Error())
 		}
