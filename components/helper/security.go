@@ -32,6 +32,10 @@ func (*Security) Md5(str string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+func (s *Security) Md5StrToUpper(str string) string {
+	return strings.ToUpper(s.Md5(str))
+}
+
 func (*Security) Sha256Hmac(str string, key string) string {
 	mac := hmac.New(sha256.New, []byte(key))
 	mac.Write([]byte(str))
