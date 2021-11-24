@@ -256,3 +256,7 @@ func (t *Time) SliceArrayTime(startAt time.Time, endAt time.Time, interval time.
 	}
 	return res, nil
 }
+
+func (t *Time) FormatUnsigned() string {
+	return t.Now().Format("20060102150405")
+}
