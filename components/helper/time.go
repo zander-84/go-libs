@@ -123,6 +123,9 @@ func (t *Time) ParseTimeToUnixMsec(layout string, source string) (int64, error) 
 	}
 	return unixNano / 1e6, nil
 }
+func (t *Time) ParseHyphenTimeToUnixMsec(hyphenTime string) (int64, error) {
+	return t.ParseTimeToUnixMsec("2006-01-02 15:04:05", hyphenTime)
+}
 
 func (t *Time) ShouldYear(timer time.Time) string {
 	if timer.IsZero() {

@@ -11,7 +11,7 @@ import (
 func TestWorker_DO(t *testing.T) {
 	fmt.Println("start:", time.Now().Format("2006-01-02 15:04:05"))
 	p := NewWorker()
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 20000000; i++ {
 		p.AddJob(context.Background(), fmt.Sprintf("%d", i), i, func(in interface{}) (interface{}, error) {
 			//time.Sleep(2*time.Second)
 			return in, nil
@@ -28,10 +28,13 @@ func TestWorker_DO(t *testing.T) {
 
 		return in, nil
 	})
-	c1, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	c1, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
-	_, err := p.Do(c1, 20)
+	jobs, err := p.Do(c1, 20)
 	fmt.Println("fin Do")
+	jobs.GetMap()
+	fmt.Println(len(jobs.dataMap))
+	//fmt.Println(jobs.dataMap)
 	//fmt.Println(student)
 	//time.Sleep(3 * time.Second)
 	if err != nil {
