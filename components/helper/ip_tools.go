@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -24,6 +25,9 @@ func GetIpTool() *IpTool { return ipTool }
  */
 func (t *IpTool) ipv4ToUint32(ipv4String string) (uint32, error) {
 	list := strings.Split(ipv4String, ".")
+	if len(list) != 4 {
+		return 0, errors.New("ip格式错误")
+	}
 	result := uint32(0)
 	for i, v := range list {
 		temp, err := strconv.ParseUint(v, 10, 8)
