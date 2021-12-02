@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -10,17 +11,22 @@ import (
 
 // go test -v  -run TestMemory
 func TestMemory(t *testing.T) {
-	memory := NewMemory(Conf{})
+	memory := NewMemory(Conf{1, 1})
 	if err := memory.Start(); err != nil {
 		t.Fatal("start memory err: ", err.Error())
 	}
 	defer memory.Stop()
-	testMemoryString(t, memory)
-	testMemorySlice(t, memory)
-	testRdbStruct(t, memory)
-	testRdbExists(t, memory)
+	//testMemoryString(t, memory)
+	//testMemorySlice(t, memory)
+	//testRdbStruct(t, memory)
+	//testRdbExists(t, memory)
 	testRdbGetOrSet(t, memory)
-	testRdbFlushDB(t, memory)
+	testRdbGetOrSet(t, memory)
+
+	time.Sleep(time.Second * 5)
+	testRdbGetOrSet(t, memory)
+
+	//testRdbFlushDB(t, memory)
 
 }
 
@@ -35,7 +41,8 @@ func testRdbGetOrSet(t *testing.T, memory *Memory) {
 	val := "aaaa"
 	get := ""
 
-	if err := memory.GetOrSet(context.Background(), key, &get, 100*time.Second, func() (interface{}, error) {
+	if err := memory.GetOrSet(context.Background(), key, &get, 0, func() (interface{}, error) {
+		fmt.Println("do GetOrSet fun")
 		return val, nil
 	}); err != nil {
 		t.Fatal("testRdbGetOrSet  err: ", err.Error())

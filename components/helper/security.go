@@ -32,6 +32,10 @@ func (*Security) Md5(str string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+func (s *Security) Md5StrToUpper(str string) string {
+	return strings.ToUpper(s.Md5(str))
+}
+
 func (*Security) Sha256Hmac(str string, key string) string {
 	mac := hmac.New(sha256.New, []byte(key))
 	mac.Write([]byte(str))
@@ -96,7 +100,10 @@ func (*Security) AESECBPkcs7Encrypt(src, key []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ECBEncrypt(block, PKCS7Padding(src, block.BlockSize()))
+	src = PKCS7Padding(src, block.BlockSize())
+	dst := make([]byte, len(src))
+	err = ECBEncrypt(block, dst, src)
+	return dst, err
 }
 
 //AESECBPkcs7Decrypt aes-ecb-decrypt 解密 pkcs7填充
@@ -105,9 +112,8 @@ func (*Security) AESECBPkcs7Decrypt(src, key []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	dst, err := ECBDecrypt(block, src)
-
+	dst := make([]byte, len(src))
+	err = ECBDecrypt(block, dst, src)
 	if err != nil {
 		return nil, err
 	}
@@ -142,34 +148,32 @@ func PKCS7UnPadding(src []byte) []byte {
 	return src[:(length - unpadding)]
 }
 
-func ECBEncrypt(b cipher.Block, src []byte) ([]byte, error) {
-	dst := make([]byte, len(src))
+func ECBEncrypt(b cipher.Block, dst, src []byte) error {
 	if len(src)%b.BlockSize() != 0 {
-		return nil, errors.New("crypto/cipher: input not full blocks")
+		return errors.New("crypto/cipher: input not full blocks")
 	}
 	if len(dst) < len(src) {
-		return nil, errors.New("crypto/cipher: output smaller than input")
+		return errors.New("crypto/cipher: output smaller than input")
 	}
 	for len(src) > 0 {
 		b.Encrypt(dst, src[:b.BlockSize()])
 		src = src[b.BlockSize():]
 		dst = dst[b.BlockSize():]
 	}
-	return dst, nil
+	return nil
 }
 
-func ECBDecrypt(b cipher.Block, src []byte) ([]byte, error) {
-	dst := make([]byte, len(src))
+func ECBDecrypt(b cipher.Block, dst, src []byte) error {
 	if len(src)%b.BlockSize() != 0 {
-		return nil, errors.New("crypto/cipher: input not full blocks")
+		return errors.New("crypto/cipher: input not full blocks")
 	}
 	if len(dst) < len(src) {
-		return nil, errors.New("crypto/cipher: output smaller than input")
+		return errors.New("crypto/cipher: output smaller than input")
 	}
 	for len(src) > 0 {
 		b.Decrypt(dst, src[:b.BlockSize()])
 		src = src[b.BlockSize():]
 		dst = dst[b.BlockSize():]
 	}
-	return dst, nil
+	return nil
 }

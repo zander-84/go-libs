@@ -31,3 +31,20 @@ func (t *MapTool) MapSort(m map[string]interface{}) (res []MapStruct) {
 	}
 	return res
 }
+
+//MapStringSort map[string]string 排序
+func (t *MapTool) MapStringSort(m map[string]string) (res []MapStruct) {
+	keys := make([]string, 0)
+	for k, _ := range m {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+	for _, key := range keys {
+		res = append(res, MapStruct{
+			Key: key,
+			Val: m[key],
+		})
+	}
+	return res
+}

@@ -53,6 +53,10 @@ func (t *Time) UnixMilliTime(msec int64) time.Time {
 	return time.Unix(0, msec*int64(time.Millisecond))
 }
 
+func (t *Time) AddMonthToUnixMilli(month int) int64 {
+	return time.Now().AddDate(0, month, 0).UnixNano() / 1e6
+}
+
 //ShouldTimeToUnix 时间戳秒 例：1628127247
 func (t *Time) ShouldTimeToUnix(timer time.Time) int64 {
 	if timer.IsZero() {
@@ -118,6 +122,13 @@ func (t *Time) ParseTimeToUnixMsec(layout string, source string) (int64, error) 
 		return 0, err
 	}
 	return unixNano / 1e6, nil
+}
+func (t *Time) ParseHyphenTimeToUnixMsec(hyphenTime string) (int64, error) {
+	return t.ParseTimeToUnixMsec("2006-01-02 15:04:05", hyphenTime)
+}
+
+func (t *Time) ParseHyphenTime(hyphenTime string) (time.Time, error) {
+	return time.ParseInLocation("2006-01-02 15:04:05", hyphenTime, time.Local)
 }
 
 func (t *Time) ShouldYear(timer time.Time) string {
@@ -251,4 +262,8 @@ func (t *Time) SliceArrayTime(startAt time.Time, endAt time.Time, interval time.
 		res = append(res, [2]time.Time{ts[k], ts[k+1]})
 	}
 	return res, nil
+}
+
+func (t *Time) FormatUnsigned() string {
+	return t.Now().Format("20060102150405")
 }
